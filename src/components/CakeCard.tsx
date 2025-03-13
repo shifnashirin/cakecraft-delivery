@@ -14,32 +14,34 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
   const { addToCart } = useCart();
 
   return (
-    <div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+    <div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
       <Link to={`/cake/${cake.id}`} className="block relative overflow-hidden aspect-square">
         <img
           src={cake.image}
           alt={cake.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute top-3 right-3 bg-cake-primary text-white px-2 py-1 rounded-md font-medium">
+        <div className="absolute top-3 right-3 bg-cake-primary text-white px-2 py-1 rounded-md font-medium shadow-sm">
           ${cake.price.toFixed(2)}
         </div>
         
         {cake.tags && cake.tags.includes('bestseller') && (
-          <div className="absolute top-3 left-3 bg-cake-accent text-white px-2 py-1 rounded-full text-xs font-medium">
+          <div className="absolute top-3 left-3 bg-cake-accent text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
             Bestseller
           </div>
         )}
         {cake.tags && cake.tags.includes('trending') && (
-          <div className="absolute top-3 left-3 bg-cake-primary text-white px-2 py-1 rounded-full text-xs font-medium">
+          <div className="absolute top-3 left-3 bg-cake-primary text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
             Trending
           </div>
         )}
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </Link>
       
       <div className="p-4">
         <Link to={`/cake/${cake.id}`}>
-          <h3 className="text-xl font-semibold text-cake-text mb-2 hover:text-cake-primary transition-colors">
+          <h3 className="text-xl font-semibold text-cake-text mb-2 group-hover:text-cake-primary transition-colors">
             {cake.name}
           </h3>
         </Link>
@@ -70,7 +72,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
         )}
         
         <Button 
-          className="w-full bg-cake-primary hover:bg-cake-dark text-white"
+          className="w-full bg-cake-primary hover:bg-cake-dark text-white transform transition-transform duration-300 group-hover:scale-105"
           onClick={() => addToCart(cake)}
         >
           Add to Cart
