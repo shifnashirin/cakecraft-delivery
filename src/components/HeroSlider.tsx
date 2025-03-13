@@ -8,6 +8,7 @@ const featuredCakes = cakes.filter(cake => cake.featured);
 
 const HeroSlider = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>(featuredCakes.map(() => false));
 
   const nextSlide = () => {
     setActiveIndex((prevIndex) => 
@@ -20,6 +21,14 @@ const HeroSlider = () => {
       prevIndex === 0 ? featuredCakes.length - 1 : prevIndex - 1
     );
   };
+
+  const handleImageError = (index: number) => {
+    const newImagesLoaded = [...imagesLoaded];
+    newImagesLoaded[index] = true;
+    setImagesLoaded(newImagesLoaded);
+  };
+
+  const defaultImage = "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600";
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,11 +48,17 @@ const HeroSlider = () => {
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out
             ${index === activeIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${cake.image})`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${!imagesLoaded[index] ? cake.image : defaultImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
+          <img 
+            src={cake.image} 
+            alt="" 
+            className="hidden"
+            onError={() => handleImageError(index)}
+          />
           <div className="absolute inset-0 flex flex-col items-start justify-center p-6 md:p-16">
             <div className="max-w-xl text-left">
               <h1 

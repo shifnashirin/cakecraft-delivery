@@ -20,6 +20,9 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
           src={cake.image}
           alt={cake.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            e.currentTarget.src = "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600";
+          }}
         />
         <div className="absolute top-3 right-3 bg-cake-primary text-white px-2 py-1 rounded-md font-medium shadow-sm">
           ${cake.price.toFixed(2)}

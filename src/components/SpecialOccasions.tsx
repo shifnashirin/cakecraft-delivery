@@ -41,6 +41,9 @@ const SpecialOccasionsSection = () => {
                 src={firstOccasion.image} 
                 alt={firstOccasion.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?auto=format&fit=crop&w=800&h=600";
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-cake-primary/50 to-transparent flex items-center justify-center">
                 {getIconComponent(firstOccasion.icon)}
@@ -67,6 +70,9 @@ const SpecialOccasionsSection = () => {
                         src={cake.image}
                         alt={cake.name}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600";
+                        }}
                       />
                       {cake.tags && cake.tags.includes('bestseller') && (
                         <div className="absolute top-2 left-2 bg-cake-accent text-white px-2 py-1 rounded-full text-xs font-medium">
