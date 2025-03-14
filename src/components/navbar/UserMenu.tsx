@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -56,6 +56,13 @@ const UserMenu = ({ isLoggedIn, userRole, handleLogout }: UserMenuProps) => {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/register">Register</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/login" className="flex items-center">
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                Admin Login
+              </Link>
             </DropdownMenuItem>
           </>
         )}
