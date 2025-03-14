@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Cake, ShoppingBag } from "lucide-react";
+import { Cake, ShoppingBag, LayoutDashboard } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
@@ -10,6 +10,7 @@ import { cakes as initialCakes } from "@/lib/data";
 import AdminStats from "@/components/admin/AdminStats";
 import InventoryTab from "@/components/admin/InventoryTab";
 import OrdersTab from "@/components/admin/OrdersTab";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 
 interface Order {
   id: string;
@@ -31,6 +32,9 @@ const Admin = () => {
     { id: "ORD-1003", customerName: "Michael Brown", date: "2023-05-16", status: "pending", total: 149.98, items: 2 },
     { id: "ORD-1004", customerName: "Emma Wilson", date: "2023-05-17", status: "processing", total: 64.99, items: 1 },
     { id: "ORD-1005", customerName: "David Lee", date: "2023-05-18", status: "delivered", total: 129.97, items: 3 },
+    { id: "ORD-1006", customerName: "Lisa Johnson", date: "2023-05-18", status: "canceled", total: 79.99, items: 2 },
+    { id: "ORD-1007", customerName: "Robert Chen", date: "2023-05-19", status: "pending", total: 99.98, items: 3 },
+    { id: "ORD-1008", customerName: "Jennifer Kim", date: "2023-05-20", status: "completed", total: 159.97, items: 4 },
   ]);
   
   useEffect(() => {
@@ -93,8 +97,12 @@ const Admin = () => {
           pendingOrderCount={pendingOrderCount} 
         />
         
-        <Tabs defaultValue="inventory" className="space-y-6">
+        <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="bg-white border border-gray-200">
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-cake-primary data-[state=active]:text-white">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="inventory" className="data-[state=active]:bg-cake-primary data-[state=active]:text-white">
               <Cake className="h-4 w-4 mr-2" />
               Inventory
@@ -104,6 +112,10 @@ const Admin = () => {
               Orders
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="dashboard" className="p-0 border-none">
+            <AdminDashboard orders={orders} />
+          </TabsContent>
           
           <TabsContent value="inventory" className="p-0 border-none">
             <InventoryTab 
