@@ -15,6 +15,9 @@ import CategoriesPage from "./pages/CategoriesPage";
 import SpecialOccasionsPage from "./pages/SpecialOccasionsPage";
 import SearchResults from "./pages/SearchResults";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +38,9 @@ const App = () => (
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/special-occasions" element={<SpecialOccasionsPage />} />
             <Route path="/search" element={<SearchResults />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

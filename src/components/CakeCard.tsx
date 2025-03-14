@@ -21,7 +21,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
           alt={cake.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
-            e.currentTarget.src = "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600";
+            e.currentTarget.src = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&h=200";
           }}
         />
         <div className="absolute top-3 right-3 bg-cake-primary text-white px-2 py-1 rounded-md font-medium shadow-sm">
@@ -77,8 +77,9 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
         <Button 
           className="w-full bg-cake-primary hover:bg-cake-dark text-white transform transition-transform duration-300 group-hover:scale-105"
           onClick={() => addToCart(cake)}
+          disabled={cake.isAvailable === false}
         >
-          Add to Cart
+          {cake.isAvailable === false ? "Out of Stock" : "Add to Cart"}
         </Button>
       </div>
     </div>

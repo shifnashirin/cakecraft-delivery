@@ -28,7 +28,7 @@ const HeroSlider = () => {
     setImagesLoaded(newImagesLoaded);
   };
 
-  const defaultImage = "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600";
+  const defaultImage = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&h=600";
 
   useEffect(() => {
     const interval = setInterval(() => {
