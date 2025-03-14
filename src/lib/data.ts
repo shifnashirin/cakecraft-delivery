@@ -1,4 +1,3 @@
-
 export interface Cake {
   id: string;
   name: string;
@@ -14,6 +13,7 @@ export interface Cake {
   customizable?: boolean;
   deliveryTime?: string;
   tags?: string[];
+  isAvailable?: boolean;
 }
 
 export interface Category {
