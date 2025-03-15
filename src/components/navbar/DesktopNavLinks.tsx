@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DesktopNavLinksProps {
@@ -29,20 +28,12 @@ const DesktopNavLinks = ({ userRole }: DesktopNavLinksProps) => {
       >
         Special Occasions
       </Link>
-      {userRole === "admin" ? (
+      {userRole === "admin" && (
         <Link 
           to="/admin" 
           className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
         >
           Admin Dashboard
-        </Link>
-      ) : (
-        <Link 
-          to="/login" 
-          className="flex items-center space-x-1 text-cake-text hover:text-cake-primary transition-colors font-medium"
-        >
-          <ShieldCheck className="h-4 w-4" />
-          <span>Admin Login</span>
         </Link>
       )}
     </nav>

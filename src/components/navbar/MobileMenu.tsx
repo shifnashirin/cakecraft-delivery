@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -44,22 +44,13 @@ const MobileMenu = ({
         >
           Special Occasions
         </Link>
-        {userRole === "admin" ? (
+        {userRole === "admin" && (
           <Link 
             to="/admin" 
             className="text-cake-primary hover:text-cake-dark transition-colors font-medium py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Admin Dashboard
-          </Link>
-        ) : (
-          <Link 
-            to="/login" 
-            className="flex items-center space-x-1 text-cake-text hover:text-cake-primary transition-colors font-medium py-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <ShieldCheck className="h-4 w-4" />
-            <span>Admin Login</span>
           </Link>
         )}
         {!isLoggedIn ? (
