@@ -56,7 +56,7 @@ router.get("/:id", async (req, res) => {
 // ADMIN ROUTES
 
 // Create new product (admin only)
-router.post("/", authMiddleware, isAdmin, async (req, res) => {
+router.post("/add", authMiddleware, isAdmin, async (req, res) => {
   try {
     const newProduct = new Product(req.body);
     await newProduct.save();
@@ -66,6 +66,7 @@ router.post("/", authMiddleware, isAdmin, async (req, res) => {
     res.status(400).json({ message: "Error creating product", error: err.message });
   }
 });
+
 
 // Update product (admin only)
 router.put("/:id", authMiddleware, isAdmin, async (req, res) => {

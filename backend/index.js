@@ -35,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
 
+
 // Error Middleware (should be after all routes)
 app.use(notFound);
 app.use(errorHandler);
