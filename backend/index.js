@@ -1,11 +1,12 @@
+
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"; 
 import authRoutes from "./routes/auth.js";
 import orderRoutes from "./routes/order.js";
+import productRoutes from "./routes/product.js";
+
 dotenv.config(); //  Load environment variables first
 
 const app = express();
@@ -29,8 +30,9 @@ app.get("/", (req, res) => {
 });
 
 //Routes
-app.use("/auth", authRoutes);
-app.use("/orders", orderRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/products", productRoutes);
 
 //  Start Server
 const PORT = process.env.PORT || 5000;

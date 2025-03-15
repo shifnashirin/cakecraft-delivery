@@ -37,7 +37,6 @@ const OrderSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'failed', 'refunded'] 
   },
   notes: { type: String },
-  shopOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   orderDate: { type: Date, default: Date.now },
   deliveryDate: { type: Date },
   trackingNumber: { type: String },

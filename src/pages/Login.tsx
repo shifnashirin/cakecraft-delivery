@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Mail, Lock, User, Store, ShieldCheck } from "lucide-react";
+import { Mail, Lock, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -29,7 +29,7 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState<string>("customer");
 
   useEffect(() => {
-    if (loginType === "admin" || loginType === "shopOwner") {
+    if (loginType === "admin") {
       setActiveTab(loginType);
     }
   }, [loginType]);
@@ -42,56 +42,55 @@ const Login = () => {
     },
   });
 
-  function onSubmit(data: FormData) {
+  async function onSubmit(data: FormData) {
     setIsLoading(true);
     
-    // Mock login based on the active tab (in a real app, replace with actual authentication)
-    setTimeout(() => {
-      switch (activeTab) {
-        case "admin":
-          if (data.email === "admin@cakedelight.com" && data.password === "admin123") {
-            toast({
-              title: "Admin login successful",
-              description: "Welcome back, Admin!",
-            });
-            localStorage.setItem("userRole", "admin");
-            navigate("/admin");
-          } else {
-            toast({
-              title: "Login failed",
-              description: "Invalid admin credentials",
-              variant: "destructive",
-            });
-          }
-          break;
-        case "shopOwner":
-          if (data.email === "shop@cakedelight.com" && data.password === "shop123") {
-            toast({
-              title: "Shop owner login successful",
-              description: "Welcome back, Shop Owner!",
-            });
-            localStorage.setItem("userRole", "shopOwner");
-            navigate("/shop-dashboard");
-          } else {
-            toast({
-              title: "Login failed",
-              description: "Invalid shop owner credentials",
-              variant: "destructive",
-            });
-          }
-          break;
-        default:
-          toast({
-            title: "Login successful",
-            description: "Welcome back to CakeDelight!",
-          });
-          localStorage.setItem("userRole", "customer");
-          navigate("/");
-          break;
+    try {
+      // In a real implementation, make an API call to your backend
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Login failed');
       }
       
+      // Store token and user info
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
+      
+      // Check role and redirect
+      if (result.user.role === 'admin') {
+        toast({
+          title: "Admin login successful",
+          description: "Welcome to the admin dashboard!",
+        });
+        navigate("/admin");
+      } else {
+        toast({
+          title: "Login successful",
+          description: "Welcome back to CakeDelight!",
+        });
+        navigate("/");
+      }
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   }
 
   return (
@@ -108,7 +107,7 @@ const Login = () => {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full">
+            <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="customer" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Customer</span>
@@ -116,10 +115,6 @@ const Login = () => {
               <TabsTrigger value="admin" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
                 <span className="hidden sm:inline">Admin</span>
-              </TabsTrigger>
-              <TabsTrigger value="shopOwner" className="flex items-center gap-2">
-                <Store className="h-4 w-4" />
-                <span className="hidden sm:inline">Shop Owner</span>
               </TabsTrigger>
             </TabsList>
             
@@ -256,75 +251,6 @@ const Login = () => {
                   >
                     {isLoading ? "Signing in..." : "Admin Sign in"}
                   </Button>
-                </form>
-              </Form>
-            </TabsContent>
-            
-            <TabsContent value="shopOwner">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-cake-text">Shop Email</FormLabel>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
-                          <FormControl>
-                            <Input
-                              placeholder="shop@cakedelight.com"
-                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-cake-text">Shop Password</FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
-                          <FormControl>
-                            <Input
-                              type="password"
-                              placeholder="••••••••"
-                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button
-                    type="submit"
-                    className="w-full bg-cake-primary hover:bg-cake-dark text-white"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Signing in..." : "Shop Owner Sign in"}
-                  </Button>
-                  
-                  <div className="text-center mt-4">
-                    <p className="text-sm text-cake-text/60">
-                      Want to register your shop?{" "}
-                      <Link
-                        to="/register?type=shopOwner"
-                        className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
-                      >
-                        Register Shop
-                      </Link>
-                    </p>
-                  </div>
                 </form>
               </Form>
             </TabsContent>

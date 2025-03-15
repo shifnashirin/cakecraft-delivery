@@ -1,28 +1,22 @@
 
 import express from "express";
 import Order from "../models/Order.js";
-import { authMiddleware, isShopOwner, isAdmin } from "../middleware/authMiddleware.js";
+import User from "../models/User.js";
+import { authMiddleware, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get all orders (shop owner specific or all for admin)
-router.get("/", authMiddleware, async (req, res) => {
+// Get all orders (admin only)
+router.get("/", authMiddleware, isAdmin, async (req, res) => {
   try {
-    let query = {};
-    
-    // If not admin, only show orders for this shop owner
-    if (req.user.role === "shopOwner") {
-      query.shopOwner = req.user._id;
-    }
-    
-    const orders = await Order.find(query).sort({ createdAt: -1 });
+    const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: "Error fetching orders", error: error.message });
   }
 });
 
-// Get order by ID
+// Get order by ID (admin or order owner)
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -31,8 +25,9 @@ router.get("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
     
-    // Check if user has permission to view this order
-    if (req.user.role === "shopOwner" && order.shopOwner.toString() !== req.user._id.toString()) {
+    // Check if user owns this order or is admin
+    if (req.user.role !== "admin" && 
+        (!order.customer.userId || order.customer.userId.toString() !== req.user._id.toString())) {
       return res.status(403).json({ message: "Access denied. Not your order." });
     }
     
@@ -42,19 +37,48 @@ router.get("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// Create new order
-router.post("/", async (req, res) => {
+// Create new order (any authenticated user)
+router.post("/", authMiddleware, async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
+    const { items, shippingAddress, paymentMethod, notes } = req.body;
+    
+    if (!items || !items.length || !shippingAddress || !paymentMethod) {
+      return res.status(400).json({ message: "Missing required order details" });
+    }
+    
+    // Calculate total amount
+    const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    const newOrder = new Order({
+      customer: {
+        name: req.user.fullName || "Customer",
+        email: req.user.email,
+        phone: req.user.phone || "",
+        userId: req.user._id
+      },
+      items,
+      shippingAddress,
+      totalAmount,
+      paymentMethod,
+      notes
+    });
+    
     await newOrder.save();
+    
+    // Add order to user's orders array
+    await User.findByIdAndUpdate(
+      req.user._id,
+      { $push: { orders: newOrder._id } }
+    );
+    
     res.status(201).json(newOrder);
   } catch (error) {
     res.status(400).json({ message: "Error creating order", error: error.message });
   }
 });
 
-// Update order status
-router.patch("/:id/status", authMiddleware, isShopOwner, async (req, res) => {
+// Update order status (admin only)
+router.patch("/:id/status", authMiddleware, isAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     
@@ -68,11 +92,6 @@ router.patch("/:id/status", authMiddleware, isShopOwner, async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
     
-    // Check if shop owner owns this order or user is admin
-    if (req.user.role === "shopOwner" && order.shopOwner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Access denied. Not your order." });
-    }
-    
     order.status = status;
     await order.save();
     
@@ -82,45 +101,31 @@ router.patch("/:id/status", authMiddleware, isShopOwner, async (req, res) => {
   }
 });
 
-// Delete order (admin only)
-router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
+// Get user's orders
+router.get("/user/my-orders", authMiddleware, async (req, res) => {
   try {
-    const order = await Order.findByIdAndDelete(req.params.id);
-    
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    
-    res.json({ message: "Order deleted successfully" });
+    const orders = await Order.find({ "customer.userId": req.user._id }).sort({ createdAt: -1 });
+    res.json(orders);
   } catch (error) {
-    res.status(500).json({ message: "Error deleting order", error: error.message });
+    res.status(500).json({ message: "Error fetching your orders", error: error.message });
   }
 });
 
-// Get shop order statistics
-router.get("/stats/shop", authMiddleware, isShopOwner, async (req, res) => {
+// Get order statistics (admin only)
+router.get("/stats/admin", authMiddleware, isAdmin, async (req, res) => {
   try {
-    let query = {};
-    
-    // If not admin, only include shop orders
-    if (req.user.role === "shopOwner") {
-      query.shopOwner = req.user._id;
-    }
-    
-    const totalOrders = await Order.countDocuments(query);
+    const totalOrders = await Order.countDocuments();
     
     const pendingOrders = await Order.countDocuments({
-      ...query,
       status: "pending"
     });
     
     const completedOrders = await Order.countDocuments({
-      ...query,
       status: { $in: ["completed", "delivered"] }
     });
     
     const totalRevenue = await Order.aggregate([
-      { $match: { ...query, status: { $ne: "canceled" } } },
+      { $match: { status: { $ne: "canceled" } } },
       { $group: { _id: null, total: { $sum: "$totalAmount" } } }
     ]);
     

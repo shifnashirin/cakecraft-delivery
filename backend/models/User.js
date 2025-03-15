@@ -8,29 +8,7 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     default: 'customer',
-    enum: ['customer', 'admin', 'shopOwner'] 
-  },
-  shop: {
-    name: { type: String },
-    description: { type: String },
-    logo: { type: String },
-    address: { type: String },
-    phone: { type: String },
-    website: { type: String },
-    socialMedia: {
-      facebook: { type: String },
-      instagram: { type: String },
-      twitter: { type: String }
-    },
-    businessHours: {
-      monday: { open: String, close: String },
-      tuesday: { open: String, close: String },
-      wednesday: { open: String, close: String },
-      thursday: { open: String, close: String },
-      friday: { open: String, close: String },
-      saturday: { open: String, close: String },
-      sunday: { open: String, close: String }
-    }
+    enum: ['customer', 'admin'] 
   },
   profilePicture: { type: String },
   fullName: { type: String },

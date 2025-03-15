@@ -1,299 +1,322 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Store, ShoppingBag, Package, Clock, LayoutDashboard } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface Order {
-  id: string;
-  customerName: string;
-  date: string;
-  status: string;
-  total: number;
-  items: number;
-}
+import { Button } from "@/components/ui/button";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 
 const ShopDashboard = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([
-    { id: "ORD-1001", customerName: "John Doe", date: "2023-05-15", status: "completed", total: 89.97, items: 3 },
-    { id: "ORD-1002", customerName: "Sarah Smith", date: "2023-05-16", status: "processing", total: 54.99, items: 1 },
-    { id: "ORD-1003", customerName: "Michael Brown", date: "2023-05-16", status: "pending", total: 149.98, items: 2 },
-    { id: "ORD-1004", customerName: "Emma Wilson", date: "2023-05-17", status: "processing", total: 64.99, items: 1 },
-  ]);
-  
+  const [activeTab, setActiveTab] = useState("overview");
+  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+    revenue: 0
+  });
+
   useEffect(() => {
-    // Check if user is shop owner (in a real app, use proper authentication)
+    // Check if user is logged in and is a shop owner
     const userRole = localStorage.getItem("userRole");
-    if (userRole !== "shopOwner" && userRole !== "admin") {
-      toast({
-        title: "Access denied",
-        description: "You don't have permission to access this page.",
-        variant: "destructive",
-      });
-      navigate("/login");
+    if (userRole !== "shopOwner") {
+      navigate("/login?type=shopOwner");
+      return;
     }
-  }, [navigate, toast]);
-  
-  const handleUpdateOrderStatus = (id: string, status: string) => {
-    setOrders(orders.map(order => 
-      order.id === id ? { ...order, status } : order
-    ));
+
+    // Fetch shop statistics
+    fetchShopStats();
     
-    toast({
-      title: "Order status updated",
-      description: `Order ${id} is now ${status}.`,
+    // Fetch orders
+    fetchOrders();
+  }, [navigate]);
+
+  const fetchShopStats = () => {
+    // In a real app, this would be an API call
+    // For now, using mock data
+    setStats({
+      totalOrders: 124,
+      pendingOrders: 18,
+      completedOrders: 106,
+      revenue: 8750
     });
   };
 
-  const pendingOrderCount = orders.filter(order => 
-    order.status === "pending" || order.status === "processing"
-  ).length;
-  
-  const completedOrderCount = orders.filter(order => 
-    order.status === "completed" || order.status === "delivered"
-  ).length;
+  const fetchOrders = () => {
+    // In a real app, this would be an API call
+    // For now, using mock data
+    setOrders([
+      {
+        id: "ORD-001",
+        customer: "John Doe",
+        date: "2023-06-15",
+        total: 45.99,
+        status: "delivered"
+      },
+      {
+        id: "ORD-002",
+        customer: "Jane Smith",
+        date: "2023-06-14",
+        total: 32.50,
+        status: "processing"
+      },
+      {
+        id: "ORD-003",
+        customer: "Robert Johnson",
+        date: "2023-06-14",
+        total: 78.25,
+        status: "pending"
+      },
+      {
+        id: "ORD-004",
+        customer: "Emily Davis",
+        date: "2023-06-13",
+        total: 54.75,
+        status: "delivered"
+      },
+      {
+        id: "ORD-005",
+        customer: "Michael Wilson",
+        date: "2023-06-12",
+        total: 29.99,
+        status: "delivered"
+      }
+    ]);
+  };
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const salesData = [
+    { name: "Jan", sales: 4000 },
+    { name: "Feb", sales: 3000 },
+    { name: "Mar", sales: 5000 },
+    { name: "Apr", sales: 4500 },
+    { name: "May", sales: 6000 },
+    { name: "Jun", sales: 5500 }
+  ];
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "delivered":
+        return "text-green-600";
+      case "processing":
+        return "text-blue-600";
+      case "pending":
+        return "text-yellow-600";
+      case "canceled":
+        return "text-red-600";
+      default:
+        return "text-gray-600";
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <div className="bg-cake-primary text-white py-4">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">Shop Dashboard</h1>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-cake-text">Shop Dashboard</h1>
+        <Button onClick={() => navigate("/shop/products/new")}>
+          Add New Product
+        </Button>
       </div>
-      
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-              <ShoppingBag className="h-4 w-4 text-cake-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{orders.length}</div>
-              <p className="text-xs text-cake-text/60">Total orders placed with your shop</p>
-            </CardContent>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="p-6 flex items-center space-x-4 bg-white shadow-sm">
+          <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+            <ShoppingCart size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Total Orders</p>
+            <h3 className="text-2xl font-bold">{stats.totalOrders}</h3>
+          </div>
+        </Card>
+
+        <Card className="p-6 flex items-center space-x-4 bg-white shadow-sm">
+          <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+            <Package size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Pending Orders</p>
+            <h3 className="text-2xl font-bold">{stats.pendingOrders}</h3>
+          </div>
+        </Card>
+
+        <Card className="p-6 flex items-center space-x-4 bg-white shadow-sm">
+          <div className="p-3 rounded-full bg-green-100 text-green-600">
+            <TrendingUp size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Completed Orders</p>
+            <h3 className="text-2xl font-bold">{stats.completedOrders}</h3>
+          </div>
+        </Card>
+
+        <Card className="p-6 flex items-center space-x-4 bg-white shadow-sm">
+          <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+            <DollarSign size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Total Revenue</p>
+            <h3 className="text-2xl font-bold">${stats.revenue.toLocaleString()}</h3>
+          </div>
+        </Card>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="settings">Shop Settings</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <Card className="p-6 bg-white shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">Sales Overview</h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={salesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="sales" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-              <Clock className="h-4 w-4 text-cake-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingOrderCount}</div>
-              <p className="text-xs text-cake-text/60">Orders waiting to be processed</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed Orders</CardTitle>
-              <Package className="h-4 w-4 text-cake-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{completedOrderCount}</div>
-              <p className="text-xs text-cake-text/60">Successfully fulfilled orders</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <div className="text-cake-primary">$</div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-cake-text/60">Revenue from all orders</p>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="bg-white border border-gray-200">
-            <TabsTrigger value="dashboard" className="data-[state=active]:bg-cake-primary data-[state=active]:text-white">
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="data-[state=active]:bg-cake-primary data-[state=active]:text-white">
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Orders
-            </TabsTrigger>
-            <TabsTrigger value="shop" className="data-[state=active]:bg-cake-primary data-[state=active]:text-white">
-              <Store className="h-4 w-4 mr-2" />
-              Shop Profile
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="dashboard" className="p-0 border-none">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4">Order ID</th>
-                        <th className="text-left py-3 px-4">Customer</th>
-                        <th className="text-left py-3 px-4">Date</th>
-                        <th className="text-left py-3 px-4">Status</th>
-                        <th className="text-right py-3 px-4">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {orders.slice(0, 5).map(order => (
-                        <tr key={order.id} className="border-b hover:bg-cake-background/30">
-                          <td className="py-3 px-4">{order.id}</td>
-                          <td className="py-3 px-4">{order.customerName}</td>
-                          <td className="py-3 px-4">{order.date}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                              order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              order.status === 'delivered' ? 'bg-purple-100 text-purple-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right">${order.total.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="orders" className="p-0 border-none">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4">Order ID</th>
-                        <th className="text-left py-3 px-4">Customer</th>
-                        <th className="text-left py-3 px-4">Date</th>
-                        <th className="text-left py-3 px-4">Items</th>
-                        <th className="text-right py-3 px-4">Total</th>
-                        <th className="text-left py-3 px-4">Status</th>
-                        <th className="text-left py-3 px-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {orders.map(order => (
-                        <tr key={order.id} className="border-b hover:bg-cake-background/30">
-                          <td className="py-3 px-4">{order.id}</td>
-                          <td className="py-3 px-4">{order.customerName}</td>
-                          <td className="py-3 px-4">{order.date}</td>
-                          <td className="py-3 px-4">{order.items}</td>
-                          <td className="py-3 px-4 text-right">${order.total.toFixed(2)}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                              order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              order.status === 'delivered' ? 'bg-purple-100 text-purple-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <select 
-                              value={order.status}
-                              onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                              className="border rounded p-1 text-sm w-full"
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="processing">Processing</option>
-                              <option value="completed">Completed</option>
-                              <option value="delivered">Delivered</option>
-                              <option value="canceled">Canceled</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="shop" className="p-0 border-none">
-            <Card>
-              <CardHeader>
-                <CardTitle>Shop Profile</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="p-6 bg-white shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Recent Orders</h3>
+              <div className="space-y-4">
+                {orders.slice(0, 3).map((order) => (
+                  <div key={order.id} className="flex justify-between items-center border-b pb-3">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Shop Name</label>
-                      <input type="text" className="w-full p-2 border rounded" defaultValue="Cake Delight Shop" />
+                      <p className="font-medium">{order.customer}</p>
+                      <p className="text-sm text-gray-500">{order.date}</p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Email</label>
-                      <input type="email" className="w-full p-2 border rounded" defaultValue="shop@cakedelight.com" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Phone</label>
-                      <input type="tel" className="w-full p-2 border rounded" defaultValue="(123) 456-7890" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Address</label>
-                      <input type="text" className="w-full p-2 border rounded" defaultValue="123 Bakery St" />
+                    <div className="text-right">
+                      <p className="font-medium">${order.total}</p>
+                      <p className={`text-sm ${getStatusColor(order.status)}`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </p>
                     </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Shop Description</label>
-                    <textarea 
-                      className="w-full p-2 border rounded min-h-[100px]"
-                      defaultValue="We specialize in custom cakes and pastries for all occasions."
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <Button 
-                      type="button"
-                      className="bg-cake-primary hover:bg-cake-dark text-white"
-                      onClick={() => {
-                        toast({
-                          title: "Profile updated",
-                          description: "Your shop profile has been updated successfully.",
-                        });
-                      }}
-                    >
-                      Save Changes
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
+                ))}
+                <Button variant="outline" className="w-full" onClick={() => setActiveTab("orders")}>
+                  View All Orders
+                </Button>
+              </div>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
-      
-      <Footer />
+
+            <Card className="p-6 bg-white shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <Button className="w-full" onClick={() => navigate("/shop/products/new")}>
+                  Add New Product
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/shop/orders/pending")}>
+                  View Pending Orders
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/shop/settings")}>
+                  Update Shop Information
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/shop/promotions")}>
+                  Create Promotion
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="orders">
+          <Card className="p-6 bg-white shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">All Orders</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Order ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {orders.map((order) => (
+                    <tr key={order.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{order.id}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{order.customer}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{order.date}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">${order.total}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          order.status === "delivered" ? "bg-green-100 text-green-800" :
+                          order.status === "processing" ? "bg-blue-100 text-blue-800" :
+                          order.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                          "bg-red-100 text-red-800"
+                        }`}>
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <Button variant="outline" size="sm" onClick={() => navigate(`/shop/orders/${order.id}`)}>
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="products">
+          <Card className="p-6 bg-white shadow-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Your Products</h3>
+              <Button onClick={() => navigate("/shop/products/new")}>
+                Add New Product
+              </Button>
+            </div>
+            <p className="text-gray-500">
+              This section will display your product catalog with options to edit, delete, and manage inventory.
+            </p>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <Card className="p-6 bg-white shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">Shop Settings</h3>
+            <p className="text-gray-500">
+              This section will allow you to update your shop information, business hours, and payment settings.
+            </p>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
