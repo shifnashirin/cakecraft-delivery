@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, User } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Mail, Lock, User, Store, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,7 +23,16 @@ type FormData = z.infer<typeof formSchema>;
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const loginType = searchParams.get("type") || "customer";
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("customer");
+
+  useEffect(() => {
+    if (loginType === "admin" || loginType === "shopOwner") {
+      setActiveTab(loginType);
+    }
+  }, [loginType]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -35,22 +45,49 @@ const Login = () => {
   function onSubmit(data: FormData) {
     setIsLoading(true);
     
-    // Mock login - in a real app, replace with actual authentication logic
+    // Mock login based on the active tab (in a real app, replace with actual authentication)
     setTimeout(() => {
-      if (data.email === "admin@cakedelight.com" && data.password === "admin123") {
-        toast({
-          title: "Admin login successful",
-          description: "Welcome back, Admin!",
-        });
-        localStorage.setItem("userRole", "admin");
-        navigate("/admin");
-      } else {
-        toast({
-          title: "Login successful",
-          description: "Welcome back to CakeDelight!",
-        });
-        localStorage.setItem("userRole", "customer");
-        navigate("/");
+      switch (activeTab) {
+        case "admin":
+          if (data.email === "admin@cakedelight.com" && data.password === "admin123") {
+            toast({
+              title: "Admin login successful",
+              description: "Welcome back, Admin!",
+            });
+            localStorage.setItem("userRole", "admin");
+            navigate("/admin");
+          } else {
+            toast({
+              title: "Login failed",
+              description: "Invalid admin credentials",
+              variant: "destructive",
+            });
+          }
+          break;
+        case "shopOwner":
+          if (data.email === "shop@cakedelight.com" && data.password === "shop123") {
+            toast({
+              title: "Shop owner login successful",
+              description: "Welcome back, Shop Owner!",
+            });
+            localStorage.setItem("userRole", "shopOwner");
+            navigate("/shop-dashboard");
+          } else {
+            toast({
+              title: "Login failed",
+              description: "Invalid shop owner credentials",
+              variant: "destructive",
+            });
+          }
+          break;
+        default:
+          toast({
+            title: "Login successful",
+            description: "Welcome back to CakeDelight!",
+          });
+          localStorage.setItem("userRole", "customer");
+          navigate("/");
+          break;
       }
       
       setIsLoading(false);
@@ -70,83 +107,228 @@ const Login = () => {
             </p>
           </div>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-cake-text">Email</FormLabel>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
-                      <FormControl>
-                        <Input
-                          placeholder="you@example.com"
-                          className="pl-10 border-cake-border focus-visible:ring-cake-primary"
-                          {...field}
-                        />
-                      </FormControl>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-3 w-full">
+              <TabsTrigger value="customer" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Customer</span>
+              </TabsTrigger>
+              <TabsTrigger value="admin" className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Admin</span>
+              </TabsTrigger>
+              <TabsTrigger value="shopOwner" className="flex items-center gap-2">
+                <Store className="h-4 w-4" />
+                <span className="hidden sm:inline">Shop Owner</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="customer">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-cake-text">Email</FormLabel>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
+                          <FormControl>
+                            <Input
+                              placeholder="you@example.com"
+                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-cake-text">Password</FormLabel>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <Link
+                        to="#"
+                        className="text-cake-primary hover:text-cake-dark transition-colors"
+                      >
+                        Forgot your password?
+                      </Link>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-cake-text">Password</FormLabel>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          className="pl-10 border-cake-border focus-visible:ring-cake-primary"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  <Link
-                    to="#"
-                    className="text-cake-primary hover:text-cake-dark transition-colors"
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    className="w-full bg-cake-primary hover:bg-cake-dark text-white"
+                    disabled={isLoading}
                   >
-                    Forgot your password?
-                  </Link>
-                </div>
-              </div>
-              
-              <Button
-                type="submit"
-                className="w-full bg-cake-primary hover:bg-cake-dark text-white"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing in..." : "Sign in"}
-              </Button>
-              
-              <div className="text-center mt-4">
-                <p className="text-sm text-cake-text/60">
-                  Don't have an account?{" "}
-                  <Link
-                    to="/register"
-                    className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
+                    {isLoading ? "Signing in..." : "Sign in"}
+                  </Button>
+                  
+                  <div className="text-center mt-4">
+                    <p className="text-sm text-cake-text/60">
+                      Don't have an account?{" "}
+                      <Link
+                        to="/register"
+                        className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
+                      >
+                        Sign up
+                      </Link>
+                    </p>
+                  </div>
+                </form>
+              </Form>
+            </TabsContent>
+            
+            <TabsContent value="admin">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-cake-text">Admin Email</FormLabel>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
+                          <FormControl>
+                            <Input
+                              placeholder="admin@cakedelight.com"
+                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-cake-text">Admin Password</FormLabel>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button
+                    type="submit"
+                    className="w-full bg-cake-primary hover:bg-cake-dark text-white"
+                    disabled={isLoading}
                   >
-                    Sign up
-                  </Link>
-                </p>
-              </div>
-            </form>
-          </Form>
+                    {isLoading ? "Signing in..." : "Admin Sign in"}
+                  </Button>
+                </form>
+              </Form>
+            </TabsContent>
+            
+            <TabsContent value="shopOwner">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-cake-text">Shop Email</FormLabel>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
+                          <FormControl>
+                            <Input
+                              placeholder="shop@cakedelight.com"
+                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-cake-text">Shop Password</FormLabel>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cake-text/40" />
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              className="pl-10 border-cake-border focus-visible:ring-cake-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button
+                    type="submit"
+                    className="w-full bg-cake-primary hover:bg-cake-dark text-white"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing in..." : "Shop Owner Sign in"}
+                  </Button>
+                  
+                  <div className="text-center mt-4">
+                    <p className="text-sm text-cake-text/60">
+                      Want to register your shop?{" "}
+                      <Link
+                        to="/register?type=shopOwner"
+                        className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
+                      >
+                        Register Shop
+                      </Link>
+                    </p>
+                  </div>
+                </form>
+              </Form>
+            </TabsContent>
+          </Tabs>
           
           <div className="mt-6">
             <div className="relative">

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Store } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -53,6 +53,15 @@ const MobileMenu = ({
             Admin Dashboard
           </Link>
         )}
+        {userRole === "shopOwner" && (
+          <Link 
+            to="/shop-dashboard" 
+            className="text-cake-primary hover:text-cake-dark transition-colors font-medium py-2"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Shop Dashboard
+          </Link>
+        )}
         {!isLoggedIn ? (
           <>
             <Link 
@@ -68,6 +77,20 @@ const MobileMenu = ({
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Register
+            </Link>
+            <Link 
+              to="/login?type=admin" 
+              className="text-cake-text hover:text-cake-primary transition-colors font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Admin Login
+            </Link>
+            <Link 
+              to="/login?type=shopOwner" 
+              className="text-cake-text hover:text-cake-primary transition-colors font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Shop Owner Login
             </Link>
           </>
         ) : (

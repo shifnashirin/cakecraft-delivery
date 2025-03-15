@@ -5,19 +5,22 @@ const OrderSchema = new mongoose.Schema({
   customer: {
     name: { type: String, required: true },
     email: { type: String, required: true },
-    phone: { type: String, required: true }
+    phone: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   },
   items: [{
     name: { type: String, required: true },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true, default: 1 },
-    imageUrl: { type: String }
+    imageUrl: { type: String },
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }
   }],
   shippingAddress: {
     street: { type: String, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
-    zipCode: { type: String, required: true }
+    zipCode: { type: String, required: true },
+    country: { type: String, default: 'United States' }
   },
   totalAmount: { type: Number, required: true },
   status: { 
@@ -34,7 +37,12 @@ const OrderSchema = new mongoose.Schema({
     enum: ['pending', 'completed', 'failed', 'refunded'] 
   },
   notes: { type: String },
-  shopOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  shopOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  orderDate: { type: Date, default: Date.now },
+  deliveryDate: { type: Date },
+  trackingNumber: { type: String },
+  couponCode: { type: String },
+  discountAmount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 export default mongoose.model("Order", OrderSchema);

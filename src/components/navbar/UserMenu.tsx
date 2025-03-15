@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -37,6 +37,11 @@ const UserMenu = ({ isLoggedIn, userRole, handleLogout }: UserMenuProps) => {
                 <Link to="/admin">Admin Dashboard</Link>
               </DropdownMenuItem>
             )}
+            {userRole === "shopOwner" && (
+              <DropdownMenuItem asChild>
+                <Link to="/shop-dashboard">Shop Dashboard</Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link to="/checkout">My Orders</Link>
             </DropdownMenuItem>
@@ -56,6 +61,19 @@ const UserMenu = ({ isLoggedIn, userRole, handleLogout }: UserMenuProps) => {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/register">Register</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/login?type=admin" className="flex items-center">
+                <Store className="h-4 w-4 mr-2" />
+                Admin Login
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/login?type=shopOwner" className="flex items-center">
+                <Store className="h-4 w-4 mr-2" />
+                Shop Owner Login
+              </Link>
             </DropdownMenuItem>
           </>
         )}
