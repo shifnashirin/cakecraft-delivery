@@ -6,6 +6,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import orderRoutes from "./routes/order.js";
 import productRoutes from "./routes/product.js";
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config(); //  Load environment variables first
 
@@ -33,6 +34,10 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
+
+// Error Middleware (should be after all routes)
+app.use(notFound);
+app.use(errorHandler);
 
 //  Start Server
 const PORT = process.env.PORT || 5000;
