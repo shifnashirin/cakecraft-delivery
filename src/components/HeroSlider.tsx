@@ -48,13 +48,13 @@ const HeroSlider = () => {
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out
             ${index === activeIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${!imagesLoaded[index] ? cake.image : defaultImage})`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${!imagesLoaded[index] ? cake.imageURL : defaultImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
           <img 
-            src={cake.image} 
+            src={cake.imageURL} 
             alt="" 
             className="hidden"
             onError={() => handleImageError(index)}

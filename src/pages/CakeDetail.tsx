@@ -63,7 +63,7 @@ const CakeDetail = () => {
             <div className="lg:w-1/2">
               <div className="aspect-square overflow-hidden rounded-lg shadow-md">
                 <img 
-                  src={cake.image} 
+                  src={cake.imageURL} 
                   alt={cake.name} 
                   className="w-full h-full object-cover"
                 />

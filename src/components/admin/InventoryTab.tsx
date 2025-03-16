@@ -60,7 +60,7 @@ const InventoryTab = ({
                   <div className="flex items-center">
                     <div className="h-10 w-10 flex-shrink-0">
                       <img 
-                        src={cake.image} 
+                        src={cake.imageURL} 
                         alt={cake.name} 
                         className="h-10 w-10 rounded-md object-cover" 
                         onError={(e) => {

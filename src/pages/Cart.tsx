@@ -59,7 +59,7 @@ const Cart = () => {
                       <div className="flex items-center">
                         <div className="w-20 h-20 flex-shrink-0 mr-4">
                           <img 
-                            src={item.cake.image} 
+                            src={item.cake.imageURL} 
                             alt={item.cake.name} 
                             className="w-full h-full object-cover rounded-md"
                           />

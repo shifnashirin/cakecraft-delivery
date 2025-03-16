@@ -101,7 +101,7 @@ const SpecialOccasionsPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2">
                   <div className="relative h-64 lg:h-full">
                     <img 
-                      src={occasion.image} 
+                      src={occasion.imageURL} 
                       alt={occasion.name} 
                       className="w-full h-full object-cover"
                     />
@@ -126,7 +126,7 @@ const SpecialOccasionsPage = () => {
                         >
                           <div className="relative h-48">
                             <img
-                              src={cake.image}
+                              src={cake.imageURL}
                               alt={cake.name}
                               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
                             />

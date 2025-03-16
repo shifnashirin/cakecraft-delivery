@@ -15,7 +15,7 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState<string>("customer");
 
   useEffect(() => {
-    if (loginType === "admin") {
+    if (loginType === "vendor") {
       setActiveTab(loginType);
     }
   }, [loginType]);
@@ -39,9 +39,9 @@ const Login = () => {
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Customer</span>
               </TabsTrigger>
-              <TabsTrigger value="admin" className="flex items-center gap-2">
+              <TabsTrigger value="vendor" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
-                <span className="hidden sm:inline">Admin</span>
+                <span className="hidden sm:inline">Vendor</span>
               </TabsTrigger>
             </TabsList>
             
@@ -49,7 +49,7 @@ const Login = () => {
               <CustomerLoginForm />
             </TabsContent>
             
-            <TabsContent value="admin">
+            <TabsContent value="vendor">
               <AdminLoginForm />
             </TabsContent>
           </Tabs>

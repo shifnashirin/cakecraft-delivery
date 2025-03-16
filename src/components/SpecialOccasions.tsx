@@ -38,7 +38,7 @@ const SpecialOccasionsSection = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="relative h-64 lg:h-full">
               <img 
-                src={firstOccasion.image} 
+                src={firstOccasion.imageURL} 
                 alt={firstOccasion.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -67,7 +67,7 @@ const SpecialOccasionsSection = () => {
                   >
                     <div className="relative h-48">
                       <img
-                        src={cake.image}
+                        src={cake.imageURL}
                         alt={cake.name}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {

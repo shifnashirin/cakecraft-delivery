@@ -23,6 +23,7 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import MyOrders from "./pages/MyOrders";
+import CreateProduct from "./pages/Createproduct";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <CartProvider>
+       <CartProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/cake/:id" element={<CakeDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/Createproduct" element={<CreateProduct />} />
               <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
               <Route path="/order-success" element={<PrivateRoute><OrderSuccess /></PrivateRoute>} />
               <Route path="/category/:id" element={<CategoryPage />} />
@@ -50,6 +52,7 @@ const App = () => (
               <Route path="/my-orders" element={<PrivateRoute><MyOrders /></PrivateRoute>} />
               <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
               <Route path="*" element={<NotFound />} />
+
             </Routes>
           </BrowserRouter>
         </CartProvider>

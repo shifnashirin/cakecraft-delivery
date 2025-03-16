@@ -17,7 +17,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
     <div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
       <Link to={`/cake/${cake.id}`} className="block relative overflow-hidden aspect-square">
         <img
-          src={cake.image}
+          src={cake.imageURL}
           alt={cake.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {

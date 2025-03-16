@@ -3,7 +3,7 @@ export interface Cake {
   name: string;
   description: string;
   price: number;
-  image: string;
+  imageURL: string;
   category: string;
   rating: number;
   reviews: number;
@@ -26,7 +26,7 @@ export interface SpecialOccasion {
   id: string;
   name: string;
   description: string;
-  image: string;
+  imageURL: string;
   icon?: string;
   cakes: Cake[];
 }
@@ -65,7 +65,7 @@ export const cakes: Cake[] = [
     name: "Chocolate Paradise",
     description: "Rich, decadent chocolate cake with premium cocoa",
     price: 49.99,
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&h=600",
     category: "chocolate",
     rating: 4.9,
     reviews: 142,
@@ -80,7 +80,7 @@ export const cakes: Cake[] = [
     name: "Classic Chocolate",
     description: "A timeless chocolate cake with rich frosting",
     price: 39.99,
-    image: "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&h=600",
     category: "chocolate",
     rating: 4.8,
     reviews: 128,
@@ -95,7 +95,7 @@ export const cakes: Cake[] = [
     name: "Red Velvet Dream",
     description: "Velvety smooth cake with cream cheese frosting",
     price: 44.99,
-    image: "https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?auto=format&fit=crop&w=800&h=600",
     category: "special",
     rating: 4.9,
     reviews: 156,
@@ -110,7 +110,7 @@ export const cakes: Cake[] = [
     name: "Strawberry Delight",
     description: "Light vanilla cake with fresh strawberry filling",
     price: 42.99,
-    image: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?auto=format&fit=crop&w=800&h=600",
     category: "fruit",
     rating: 4.7,
     reviews: 98,
@@ -125,7 +125,7 @@ export const cakes: Cake[] = [
     name: "Rainbow Surprise",
     description: "Colorful layered cake with sprinkles",
     price: 49.99,
-    image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=800&h=600",
     category: "special",
     rating: 4.6,
     reviews: 87,
@@ -140,7 +140,7 @@ export const cakes: Cake[] = [
     name: "Chocolate Fantasy",
     description: "Triple chocolate layers with ganache",
     price: 54.99,
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&h=600",
     category: "chocolate",
     rating: 4.9,
     reviews: 112,
@@ -155,7 +155,7 @@ export const cakes: Cake[] = [
     name: "Unicorn Dream",
     price: 64.99,
     description: "Magical rainbow-colored cake with whimsical unicorn decorations",
-    image: "https://images.unsplash.com/photo-1557979619-445218f326b9?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1557979619-445218f326b9?auto=format&fit=crop&w=800&h=600",
     category: "special",
     rating: 4.7,
     reviews: 56,
@@ -170,7 +170,7 @@ export const cakes: Cake[] = [
     name: "Classic White Elegance",
     price: 299.99,
     description: "Traditional multi-tiered white wedding cake with delicate sugar flowers",
-    image: "https://images.unsplash.com/photo-1522767131594-6b7e96848fba?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1522767131594-6b7e96848fba?auto=format&fit=crop&w=800&h=600",
     category: "wedding",
     rating: 5.0,
     reviews: 42,
@@ -185,7 +185,7 @@ export const cakes: Cake[] = [
     name: "Rose Gold Dream",
     price: 349.99,
     description: "Modern wedding cake with rose gold accents and elegant design",
-    image: "https://images.unsplash.com/photo-1560180474-e8563fd75bab?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1560180474-e8563fd75bab?auto=format&fit=crop&w=800&h=600",
     category: "wedding",
     rating: 4.9,
     reviews: 38,
@@ -200,7 +200,7 @@ export const cakes: Cake[] = [
     name: "Modern Minimalist",
     price: 279.99,
     description: "Clean, contemporary wedding cake with simple geometric designs",
-    image: "https://images.unsplash.com/photo-1623428454614-a51f78e9a31a?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1623428454614-a51f78e9a31a?auto=format&fit=crop&w=800&h=600",
     category: "wedding",
     rating: 4.8,
     reviews: 29,
@@ -215,7 +215,7 @@ export const cakes: Cake[] = [
     name: "Golden Memories",
     price: 79.99,
     description: "Luxurious anniversary cake with gold accents and personalized topper",
-    image: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=800&h=600",
     category: "special",
     rating: 4.9,
     reviews: 67,
@@ -230,7 +230,7 @@ export const cakes: Cake[] = [
     name: "Silver Jubilee",
     price: 89.99,
     description: "Elegant cake for celebrating 25 years of love with silver decorations",
-    image: "https://images.unsplash.com/photo-1542826438-bd32f43d626f?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1542826438-bd32f43d626f?auto=format&fit=crop&w=800&h=600",
     category: "special",
     rating: 4.8,
     reviews: 45,
@@ -245,7 +245,7 @@ export const cakes: Cake[] = [
     name: "Love Story Book",
     price: 94.99,
     description: "Unique book-shaped cake that tells your love story through edible images",
-    image: "https://images.unsplash.com/photo-1562777717-dc6984f65a63?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1562777717-dc6984f65a63?auto=format&fit=crop&w=800&h=600",
     category: "special",
     rating: 4.7,
     reviews: 34,
@@ -262,7 +262,7 @@ export const specialOccasions: SpecialOccasion[] = [
     id: "birthday",
     name: "Birthday Celebrations",
     description: "From whimsical children's cakes to sophisticated adult designs, our birthday collection offers the perfect centerpiece for your celebration. Each cake can be customized with your choice of flavors, colors, and personal messages.",
-    image: "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?auto=format&fit=crop&w=800&h=600",
     icon: "party-popper",
     cakes: cakes.filter(cake => cake.specialOccasion === "birthday"),
   },
@@ -270,7 +270,7 @@ export const specialOccasions: SpecialOccasion[] = [
     id: "wedding",
     name: "Wedding Cakes",
     description: "Make your special day unforgettable with our exquisite wedding cake collection. From classic tiered designs to modern masterpieces, each cake is crafted with meticulous attention to detail. Includes free consultation and tasting session.",
-    image: "https://images.unsplash.com/photo-1522767131594-6b7e96848fba?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1522767131594-6b7e96848fba?auto=format&fit=crop&w=800&h=600",
     icon: "heart",
     cakes: cakes.filter(cake => cake.specialOccasion === "wedding"),
   },
@@ -278,7 +278,7 @@ export const specialOccasions: SpecialOccasion[] = [
     id: "anniversary",
     name: "Anniversary Delights",
     description: "Celebrate your love story with our specially crafted anniversary cakes. Whether it's your first year or your golden jubilee, we have the perfect design to mark your milestone. Available with premium decorations and personalized toppers.",
-    image: "https://images.unsplash.com/photo-1530648672449-81f6c723e2f1?auto=format&fit=crop&w=800&h=600",
+    imageURL: "https://images.unsplash.com/photo-1530648672449-81f6c723e2f1?auto=format&fit=crop&w=800&h=600",
     icon: "gift",
     cakes: cakes.filter(cake => cake.specialOccasion === "anniversary"),
   },
