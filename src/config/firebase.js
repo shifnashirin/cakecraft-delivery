@@ -6,13 +6,13 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBGZxKVLyh4T0BtYpZuL_2RMvvxRGLpd9g",
-  authDomain: "cakedelight-app.firebaseapp.com",
-  projectId: "cakedelight-app",
-  storageBucket: "cakedelight-app.appspot.com",
-  messagingSenderId: "759267548852",
-  appId: "1:759267548852:web:cb9c1d75fc19b3a50cc09d",
-  measurementId: "G-N0F0HT7E55"
+  apiKey: "AIzaSyA4_HZCVZDS-34-QO0JeaD0BFxSFVBmhVI",
+  authDomain: "cakedelight-79097.firebaseapp.com",
+  projectId: "cakedelight-79097",
+  storageBucket: "cakedelight-79097.firebasestorage.app",
+  messagingSenderId: "463954626749",
+  appId: "1:463954626749:web:05d84b65681901a5facfd4",
+  measurementId: "G-9E14B5VVES"
 };
 
 // Initialize Firebase
