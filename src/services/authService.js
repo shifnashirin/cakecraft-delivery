@@ -1,4 +1,3 @@
-
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -17,6 +16,7 @@ export const registerWithEmailAndPassword = async (email, password) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
+    console.error("Firebase registration error:", error.code, error.message);
     throw error;
   }
 };
@@ -27,6 +27,7 @@ export const loginWithEmailAndPassword = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
+    console.error("Firebase login error:", error.code, error.message);
     throw error;
   }
 };
