@@ -49,11 +49,3 @@ export const isAdmin = (req, res, next) => {
   }
   next();
 };
-
-// Shop owner or admin check middleware
-export const isAdminOrShopOwner = (req, res, next) => {
-  if (req.user.role !== "admin" && req.user.role !== "shop_owner") {
-    return res.status(403).json({ message: "Access denied. Admin or Shop Owner privileges required." });
-  }
-  next();
-};

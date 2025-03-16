@@ -47,7 +47,7 @@ router.post("/register", async (req, res) => {
 // Admin Registration (protected route)
 router.post("/register-admin", authMiddleware, isAdmin, async (req, res) => {
   try {
-    const { email, password, fullName, phone, role } = req.body;
+    const { email, password, fullName, phone } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -55,26 +55,21 @@ router.post("/register-admin", authMiddleware, isAdmin, async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Validate role
-    if (role !== "admin" && role !== "shop_owner") {
-      return res.status(400).json({ message: "Invalid role specified" });
-    }
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new admin/shop owner
+    // Create new admin
     const newUser = new User({
       email,
       password: hashedPassword,
       fullName,
       phone,
-      role
+      role: "admin"
     });
 
     await newUser.save();
 
-    res.status(201).json({ message: `${role} registered successfully` });
+    res.status(201).json({ message: "Admin registered successfully" });
   } catch (err) {
     res.status(500).json({ message: "Registration failed", error: err.message });
   }
