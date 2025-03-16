@@ -42,10 +42,19 @@ export const useRegisterForm = () => {
     
     try {
       await register(data.email, data.password, data.fullName, data.phone);
+      toast({
+        title: "Registration successful",
+        description: "You can now log in with your credentials",
+      });
       navigate("/login");
-    } catch (error) {
-      // Error handling is done in register function in AuthContext
+    } catch (error: any) {
+      // Error handling is now done in the AuthContext
       console.error("Registration error:", error);
+      
+      // Reset the form fields except for fullName and phone
+      form.setValue("email", "");
+      form.setValue("password", "");
+      form.setValue("confirmPassword", "");
     } finally {
       setIsLoading(false);
     }

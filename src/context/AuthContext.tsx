@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User } from "firebase/auth";
 import { 
@@ -89,9 +88,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       return user;
     } catch (error: any) {
+      let errorMessage = "An error occurred during registration";
+      
+      // Enhanced error handling for Firebase auth errors
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "This email is already registered. Please use a different email or try logging in.";
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "Password is too weak. Please choose a stronger password.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Please enter a valid email address.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Registration failed",
-        description: error.message || "An error occurred during registration",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;

@@ -1,11 +1,12 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Mail, Lock, User, Phone } from "lucide-react";
+import { Mail, Lock, User, Phone, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useRegisterForm } from "@/hooks/useRegisterForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const RegistrationForm = () => {
   const { form, isLoading, onSubmit } = useRegisterForm();
