@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/context/AuthContext";
 import * as z from "zod";
 
 export const registerFormSchema = z.object({
@@ -23,6 +24,7 @@ export const useRegisterForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -39,38 +41,11 @@ export const useRegisterForm = () => {
     setIsLoading(true);
     
     try {
-      // Send registration request to backend
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: data.fullName,
-          email: data.email,
-          phone: data.phone,
-          password: data.password
-        }),
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.message || 'Registration failed');
-      }
-      
-      toast({
-        title: "Registration successful",
-        description: "Welcome to CakeDelight! You can now log in.",
-      });
-      
+      await register(data.email, data.password, data.fullName, data.phone);
       navigate("/login");
     } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: error instanceof Error ? error.message : "An error occurred during registration",
-        variant: "destructive",
-      });
+      // Error handling is done in register function in AuthContext
+      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }

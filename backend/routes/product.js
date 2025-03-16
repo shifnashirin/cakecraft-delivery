@@ -1,7 +1,7 @@
 
 import express from "express";
 import Product from "../models/Product.js";
-import { authMiddleware, isAdmin } from "../middleware/authMiddleware.js";
+import { verifyFirebaseToken, isAdmin } from "../middleware/firebaseAuthMiddleware.js";
 
 const router = express.Router();
 
@@ -56,7 +56,7 @@ router.get("/:id", async (req, res) => {
 // ADMIN ROUTES
 
 // Create new product (admin only)
-router.post("/add", authMiddleware, isAdmin, async (req, res) => {
+router.post("/add", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const newProduct = new Product(req.body);
     await newProduct.save();
@@ -67,9 +67,8 @@ router.post("/add", authMiddleware, isAdmin, async (req, res) => {
   }
 });
 
-
 // Update product (admin only)
-router.put("/:id", authMiddleware, isAdmin, async (req, res) => {
+router.put("/:id", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
@@ -88,7 +87,7 @@ router.put("/:id", authMiddleware, isAdmin, async (req, res) => {
 });
 
 // Delete product (admin only)
-router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
+router.delete("/:id", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     
@@ -99,6 +98,51 @@ router.delete("/:id", authMiddleware, isAdmin, async (req, res) => {
     res.json({ message: "Product deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Error deleting product", error: err.message });
+  }
+});
+
+// Add product review (authenticated users)
+router.post("/:id/reviews", verifyFirebaseToken, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+    
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    
+    // Check if user already reviewed this product
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.userId.toString() === req.user._id.toString()
+    );
+    
+    if (alreadyReviewed) {
+      return res.status(400).json({ message: "Product already reviewed" });
+    }
+    
+    const review = {
+      userId: req.user._id,
+      rating: Number(rating),
+      comment,
+    };
+    
+    product.reviews.push(review);
+    
+    // Calculate average rating
+    product.averageRating = 
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) / 
+      product.reviews.length;
+    
+    await product.save();
+    
+    res.status(201).json({ message: "Review added successfully", review });
+  } catch (err) {
+    res.status(500).json({ message: "Error adding review", error: err.message });
   }
 });
 

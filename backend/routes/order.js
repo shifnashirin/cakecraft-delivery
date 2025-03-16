@@ -2,12 +2,12 @@
 import express from "express";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
-import { authMiddleware, isAdmin } from "../middleware/authMiddleware.js";
+import { verifyFirebaseToken, isAdmin } from "../middleware/firebaseAuthMiddleware.js";
 
 const router = express.Router();
 
 // Get all orders (admin only)
-router.get("/", authMiddleware, isAdmin, async (req, res) => {
+router.get("/", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
@@ -17,7 +17,7 @@ router.get("/", authMiddleware, isAdmin, async (req, res) => {
 });
 
 // Get order by ID (admin or order owner)
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/:id", verifyFirebaseToken, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     
@@ -38,7 +38,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // Create new order (any authenticated user)
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", verifyFirebaseToken, async (req, res) => {
   try {
     const { items, shippingAddress, paymentMethod, notes } = req.body;
     
@@ -78,7 +78,7 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // Update order status (admin only)
-router.patch("/:id/status", authMiddleware, isAdmin, async (req, res) => {
+router.patch("/:id/status", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     
@@ -102,7 +102,7 @@ router.patch("/:id/status", authMiddleware, isAdmin, async (req, res) => {
 });
 
 // Get user's orders
-router.get("/user/my-orders", authMiddleware, async (req, res) => {
+router.get("/user/my-orders", verifyFirebaseToken, async (req, res) => {
   try {
     const orders = await Order.find({ "customer.userId": req.user._id }).sort({ createdAt: -1 });
     res.json(orders);
@@ -112,7 +112,7 @@ router.get("/user/my-orders", authMiddleware, async (req, res) => {
 });
 
 // Get order statistics (admin only)
-router.get("/stats/admin", authMiddleware, isAdmin, async (req, res) => {
+router.get("/stats/admin", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const totalOrders = await Order.countDocuments();
     

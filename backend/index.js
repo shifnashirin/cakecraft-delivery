@@ -6,7 +6,9 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import orderRoutes from "./routes/order.js";
 import productRoutes from "./routes/product.js";
+import userRoutes from "./routes/user.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+import "./firebase-admin.js"; // Initialize Firebase Admin
 
 dotenv.config(); //  Load environment variables first
 
@@ -32,6 +34,7 @@ app.get("/", (req, res) => {
 
 //Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
 
