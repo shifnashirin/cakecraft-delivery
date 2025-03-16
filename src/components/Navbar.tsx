@@ -9,31 +9,40 @@ import CartButton from "@/components/navbar/CartButton";
 import UserMenu from "@/components/navbar/UserMenu";
 import DesktopNavLinks from "@/components/navbar/DesktopNavLinks";
 import MobileMenu from "@/components/navbar/MobileMenu";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { currentUser, userProfile, logoutUser } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if user is logged in (in a real app, use proper authentication)
-    const role = localStorage.getItem("userRole");
-    setUserRole(role);
-    setIsLoggedIn(!!role);
-  }, []);
+    // Check if user is logged in based on Auth context
+    setIsLoggedIn(!!currentUser);
+    setUserRole(userProfile?.role || null);
+  }, [currentUser, userProfile]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    setIsLoggedIn(false);
-    setUserRole(null);
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account.",
-    });
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setIsLoggedIn(false);
+      setUserRole(null);
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "An error occurred during logout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

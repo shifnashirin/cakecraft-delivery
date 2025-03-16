@@ -67,7 +67,7 @@ router.put("/role/:id", verifyFirebaseToken, isAdmin, async (req, res) => {
   try {
     const { role } = req.body;
     
-    if (!role || !['customer', 'admin', 'shop_owner'].includes(role)) {
+    if (!role || !['customer', 'admin'].includes(role)) {
       return res.status(400).json({ message: "Invalid role specified" });
     }
     

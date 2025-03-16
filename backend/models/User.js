@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     default: 'customer',
-    enum: ['customer', 'admin', 'shop_owner'] 
+    enum: ['customer', 'admin'] 
   },
   profilePicture: { type: String },
   fullName: { type: String },
