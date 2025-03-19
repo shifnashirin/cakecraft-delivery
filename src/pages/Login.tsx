@@ -54,7 +54,7 @@ const Login = () => {
             </TabsContent>
           </Tabs>
           
-          <SocialLoginButtons />
+          {/* <SocialLoginButtons /> */}
         </div>
       </main>
       

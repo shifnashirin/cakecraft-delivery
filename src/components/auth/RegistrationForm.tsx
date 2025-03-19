@@ -8,15 +8,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useRegisterForm } from "@/hooks/useRegisterForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const RegistrationForm = () => {
-  const { form, isLoading, onSubmit } = useRegisterForm();
+const RegistrationForm = ({role}) => {
+  const { form, isLoading, onSubmit } = useRegisterForm(role);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="name"
+          name="fullName"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-cake-text">Full Name</FormLabel>
@@ -58,7 +58,7 @@ const RegistrationForm = () => {
         
         <FormField
           control={form.control}
-          name="phoneNumber"
+          name="phone"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-cake-text">Phone Number</FormLabel>

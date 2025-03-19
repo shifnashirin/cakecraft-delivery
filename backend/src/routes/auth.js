@@ -4,8 +4,8 @@ const validator = require('validator');
 const router = express.Router();
 
 // Create a new user
-router.post("/signup", async (req, res) => {
-  const { name, email, phoneNumber, password } = req.body;
+router.post("/register", async (req, res) => {
+  const { name, email, phoneNumber, password , role } = req.body;
 
   // Check for missing fields
   if (!name || !email || !phoneNumber || !password) {
@@ -34,7 +34,7 @@ router.post("/signup", async (req, res) => {
     });
 
     // ✅ Assign a default role "user" to the newly created user
-    await auth.setCustomUserClaims(userRecord.uid, { role: "user" });
+    await auth.setCustomUserClaims(userRecord.uid, { role: role });
 
     // ✅ Store user data in Firestore
     await db.collection("users").doc(userRecord.uid).set({
@@ -42,7 +42,7 @@ router.post("/signup", async (req, res) => {
       name: name,
       email: email,
       phoneNumber: phoneNumber,
-      role: "user", // Store role in Firestore for reference
+      role: role, // Store role in Firestore for reference
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 

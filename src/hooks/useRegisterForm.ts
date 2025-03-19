@@ -1,72 +1,81 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/config/firebase"; // Import Firebase auth
 import * as z from "zod";
 
-// Define the login form schema using Zod
-export const loginFormSchema = z.object({
+export const registerFormSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-// Infer the type of the login form data
-export type LoginFormData = z.infer<typeof loginFormSchema>;
+export type RegisterFormData = z.infer<typeof registerFormSchema>;
 
-// Custom hook for handling the login form
-export const useLoginForm = (isAdmin = false) => {
+export const useRegisterForm = (role) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { role } = useAuth(); // Use the role from AuthContext
+  const API = import.meta.env.VITE_API_URL;
 
-  // Initialize the form using react-hook-form
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginFormSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
+      fullName: "",
       email: "",
+      phone: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  // Handle form submission
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
-
+    
     try {
-      // Sign in with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      const user = userCredential.user;
+      const response = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.fullName,
+          email: data.email,
+          phoneNumber: data.phone,
+          password: data.password,
+          role: role,
+        }),
+      });
 
-      if (user) {
-        // Get the user's ID token to check their role
-        const idTokenResult = await user.getIdTokenResult();
-        const userRole = idTokenResult.claims.role; // Assuming the role is stored in the token claims
-
-        // Redirect based on the user's role
-        if (isAdmin && userRole !== "admin") {
-          toast({
-            title: "Access denied",
-            description: "You don't have admin privileges.",
-            variant: "destructive",
-          });
-          await auth.signOut(); // Sign out the user if they don't have admin privileges
-          navigate("/login");
-        } else if (isAdmin && userRole === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
+      if (!response.ok) {
+        throw new Error('Registration failed');
       }
-    } catch (error) {
-      console.error("Login error:", error);
+
+      const result = await response.json();
+
       toast({
-        title: "Login failed",
-        description: "Invalid email or password. Please try again.",
+        title: "Registration successful",
+        description: "You can now log in with your credentials",
+      });
+      navigate("/login");
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      
+      form.setValue("email", "");
+      form.setValue("password", "");
+      form.setValue("confirmPassword", "");
+
+      toast({
+        title: "Registration failed",
+        description: error.message || "An error occurred during registration",
         variant: "destructive",
       });
     } finally {

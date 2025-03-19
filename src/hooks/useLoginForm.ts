@@ -47,17 +47,20 @@ export const useLoginForm = (isAdmin = false) => {
         const idTokenResult = await user.getIdTokenResult();
         const userRole = idTokenResult.claims.role; // Assuming the role is stored in the token claims
 
+        // if (isAdmin && userRole !== "admin") {
+        //   toast({
+        //     title: "Access denied",
+        //     description: "You don't have admin privileges.",
+        //     variant: "destructive",
+        //   });
+        //   await auth.signOut(); // Sign out the user if they don't have admin privileges
+        //   navigate("/login");
+        // } else
         // Redirect based on the user's role
-        if (isAdmin && userRole !== "admin") {
-          toast({
-            title: "Access denied",
-            description: "You don't have admin privileges.",
-            variant: "destructive",
-          });
-          await auth.signOut(); // Sign out the user if they don't have admin privileges
-          navigate("/login");
-        } else if (isAdmin && userRole === "admin") {
-          navigate("/admin");
+       if (userRole === "admin") {
+          navigate("/admin/dashboard");
+        }else if (userRole === "vendor"){
+          navigate("/vendor/dashboard");
         } else {
           navigate("/");
         }

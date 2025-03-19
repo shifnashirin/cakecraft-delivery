@@ -5,46 +5,15 @@ import { Button } from "@/components/ui/button";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import CreateProduct from "../../pages/Createproduct"; // Import modal component
+import { useAuth } from "@/context/AuthContext";
 
-const InventoryTab = () => {
-  const [products, setProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+const InventoryTab = ({
+  cakes,
+  searchTerm,
+  setSearchTerm,
+  handleUpdateAvailability,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Fetch Products from Firestore
-  const fetchProducts = async () => {
-    try {
-      const productsCollection = collection(db, "products");
-      const productSnapshot = await getDocs(productsCollection);
-      const productList = productSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setProducts(productList);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // Update product availability
-  const handleUpdateAvailability = async (id, inStock) => {
-    try {
-      const productRef = doc(db, "products", id);
-      await updateDoc(productRef, { inStock });
-
-      setProducts(
-        products.map((product) =>
-          product.id === id ? { ...product, inStock } : product
-        )
-      );
-    } catch (error) {
-      console.error("Error updating availability:", error);
-    }
-  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -66,8 +35,15 @@ const InventoryTab = () => {
             onClick={() => setIsModalOpen(!isModalOpen)}
             className="bg-cake-primary hover:bg-cake-dark text-white"
           >
-           
-            {!isModalOpen ? <span className="flex gap-2 items-center"> <Plus className="h-4 w-4 mr-2" />Add New Product</span> : 'Cancel'}
+            {!isModalOpen ? (
+              <span className="flex gap-2 items-center">
+                {" "}
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Product
+              </span>
+            ) : (
+              "Cancel"
+            )}
           </Button>
         </div>
       </div>
@@ -76,17 +52,9 @@ const InventoryTab = () => {
       <div className="overflow-x-auto">
         {isModalOpen ? (
           <>
-            <button
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 transition duration-300"
-              onClick={() => setIsModalOpen(false)}
-            >
-              ✕
-            </button>
-
             <CreateProduct
               onClose={() => {
                 setIsModalOpen(false);
-                fetchProducts(); // Refresh inventory after new product creation
               }}
             />
           </>
@@ -112,7 +80,7 @@ const InventoryTab = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {products.map((product) => (
+              {cakes.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">

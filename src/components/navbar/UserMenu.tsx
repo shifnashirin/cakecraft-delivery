@@ -34,7 +34,12 @@ const UserMenu = ({ isLoggedIn, userRole, handleLogout }: UserMenuProps) => {
           <>
             {userRole === "admin" && (
               <DropdownMenuItem asChild>
-                <Link to="/admin">Admin Dashboard</Link>
+                <Link to="/admin/dashboard">Admin Dashboard</Link>
+              </DropdownMenuItem>
+            )}
+             {userRole === "vendor" && (
+              <DropdownMenuItem asChild>
+                <Link to="/vendor/dashboard">My Dashboard</Link>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem asChild>

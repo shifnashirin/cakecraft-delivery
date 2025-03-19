@@ -29,7 +29,7 @@ const DesktopNavLinks = ({ userRole }: DesktopNavLinksProps) => {
       </Link>
       {userRole === "admin" && (
         <Link
-          to="/admin"
+          to="/admin/dashboard"
           className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
         >
           Admin Dashboard

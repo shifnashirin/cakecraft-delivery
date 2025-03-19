@@ -16,19 +16,19 @@ const Navbar = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { currentUser, userProfile, logoutUser } = useAuth();
+  const { user, userData, handleSignOut } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is logged in based on Auth context
-    setIsLoggedIn(!!currentUser);
-    setUserRole(userProfile?.role || null);
-  }, [currentUser, userProfile]);
+    setIsLoggedIn(!!user);
+    setUserRole(userData?.role || null);
+  }, [user, userData]);
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
+      await handleSignOut();
       setIsLoggedIn(false);
       setUserRole(null);
       toast({

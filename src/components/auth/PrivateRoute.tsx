@@ -7,13 +7,13 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  const { currentUser, loading } = useAuth();
+  const { user } = useAuth();
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  // }
 
-  if (!currentUser) {
+  if (!user) {
     return <Navigate to="/login" />;
   }
 

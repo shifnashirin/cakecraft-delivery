@@ -9,7 +9,7 @@ import * as z from "zod";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link} from "react-router-dom";
 
 // Form validation schema
 const formSchema = z.object({
@@ -141,6 +141,17 @@ const VendorLoginForm = () => {
         >
           {isLoading ? "Signing in..." : "Vendor Sign in"}
         </Button>
+        <div className="text-center mt-4">
+          <p className="text-sm text-cake-text/60">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-cake-primary hover:text-cake-dark transition-colors font-medium"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
       </form>
     </Form>
   );

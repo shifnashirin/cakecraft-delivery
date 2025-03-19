@@ -2,8 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const middleware = require('./src/middleware');
 
-const userRoutes = require('./src/routes/User/auth');
-const organizerRoutes = require('./src/routes/Organizer/auth');
+const AuthRoutes = require('./src/routes/auth');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -17,8 +16,7 @@ app.get('/', (req, res) => {
 );
 // app.use('/test', test)
 
-app.use('/api/user',userRoutes);
-app.use('/api/vendor',organizerRoutes);
+app.use('/api', AuthRoutes);
 
 //app.use('/api/admin',middleware.decodeToken, middleware.checkRole('admin'),  AdminuserRoutes);
 

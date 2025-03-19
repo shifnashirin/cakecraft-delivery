@@ -50,41 +50,77 @@ const OrderDetails = () => {
     );
   }
 
+  const TotalAmount = (items) => {
+    let total = 0;
+    items.forEach((item) => {
+      total += item.price * item.quantity;
+    });
+    return total.toFixed(2);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Order Details</h1>
 
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>Order #{order.id.substring(0, 8)}</CardTitle>
-            <p>Placed on {new Date(order.orderDate).toLocaleDateString()}</p>
-          </CardHeader>
-          <CardContent>
-            <p>Status: {order.status}</p>
-            <p>Total Amount: ${order.totalAmount?.toFixed(2)}</p>
-
-            <h2 className="text-xl font-bold mt-4">Items</h2>
-            <ul className="list-disc pl-5">
-              {order.items?.map((item: any, index: number) => (
-                <li key={index}>
-                  {item.name} - ${item.price.toFixed(2)} x {item.quantity}
-                </li>
-              ))}
-            </ul>
-
-            <h2 className="text-xl font-bold mt-4">Shipping Address</h2>
-            <p>{order.shippingAddress?.street}</p>
-            <p>
-              {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}
+            <p className="text-sm text-gray-600">
+              Placed on {new Date(order.orderDate).toLocaleDateString()}
             </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Order Status and Total */}
+            <div className="space-y-2">
+              <p className="text-lg font-semibold">
+                Status: <span className="text-blue-600">{order.status}</span>
+              </p>
+              <p className="text-lg font-semibold">
+                Total: <span className="text-green-600">${TotalAmount(order.items)}</span>
+              </p>
+            </div>
 
-            <h2 className="text-xl font-bold mt-4">Payment Info</h2>
-            <p>Method: {order.paymentMethod}</p>
-            <p>Status: {order.paymentStatus}</p>
+            {/* Order Items */}
+            <div>
+              <h2 className="text-xl font-bold mb-4">Items</h2>
+              <div className="space-y-4">
+                {order.items?.map((item, index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    <img
+                      src={item.imageURL}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                      <p className="text-sm text-gray-600">Price: ${item.price?.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-            <Button asChild className="mt-4">
+            {/* Shipping Address */}
+            <div>
+              <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
+              <p className="text-gray-700">{order.shippingAddress?.street}</p>
+              <p className="text-gray-700">
+                {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}
+              </p>
+            </div>
+
+            {/* Payment Info */}
+            <div>
+              <h2 className="text-xl font-bold mb-4">Payment Info</h2>
+              <p className="text-gray-700">Method: {order.paymentMethod}</p>
+              <p className="text-gray-700">Status: {order.paymentStatus}</p>
+            </div>
+
+            {/* Back to Orders Button */}
+            <Button asChild className="mt-6 w-full sm:w-auto">
               <Link to="/my-orders">Back to Orders</Link>
             </Button>
           </CardContent>

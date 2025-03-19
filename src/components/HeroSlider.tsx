@@ -86,7 +86,8 @@ const HeroSlider = () => {
                 style={{ animationDelay: "800ms" }}
                 asChild
               >
-                <a href={`/cake/${cake.id}`}>Order Now</a>
+                {/* <a href={`/cake/${cake.id}`}>Order Now</a> */}
+                Order Now
               </Button>
             </div>
           </div>

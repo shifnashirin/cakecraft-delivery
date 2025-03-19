@@ -10,19 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Profile = () => {
-  const { currentUser, userProfile, logoutUser } = useAuth();
+  const { user, userData, handleSignOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  console.log(userProfile);
+  console.log(userData);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: userProfile?.name || "",
-    phone: userProfile?.phoneNumber || "",
-    street: userProfile?.address?.street || "",
-    city: userProfile?.address?.city || "",
-    state: userProfile?.address?.state || "",
-    zipCode: userProfile?.address?.zipCode || "",
-    country: userProfile?.address?.country || "United States",
+    fullName: userData?.name || "",
+    phone: userData?.phoneNumber || "",
+    street: userData?.address?.street || "",
+    city: userData?.address?.city || "",
+    state: userData?.address?.state || "",
+    zipCode: userData?.address?.zipCode || "",
+    country: userData?.address?.country || "United States",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,14 +63,14 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
+      await handleSignOut();
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
-  if (!currentUser || !userProfile) {
+  if (!user || !userData) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -99,30 +99,30 @@ const Profile = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-center mb-4">
                     <div className="h-24 w-24 rounded-full bg-cake-primary/20 flex items-center justify-center text-cake-primary text-2xl font-bold">
-                      {userProfile.fullName
-                        ? userProfile.fullName.charAt(0).toUpperCase()
+                      {userData.fullName
+                        ? userData.fullName.charAt(0).toUpperCase()
                         : "U"}
                     </div>
                   </div>
 
                   <div>
                     <p className="text-sm text-cake-text/60">Email</p>
-                    <p className="font-medium">{currentUser.email}</p>
+                    <p className="font-medium">{user.email}</p>
                   </div>
 
                   <div>
                     <p className="text-sm text-cake-text/60">Account Type</p>
-                    <p className="font-medium capitalize">{userProfile.role}</p>
+                    <p className="font-medium capitalize">{userData.role}</p>
                   </div>
 
                   <div>
                     <p className="text-sm text-cake-text/60">Member Since</p>
                     <p className="font-medium">
-                      {new Date(userProfile.createdAt).toLocaleDateString()}
+                      {new Date(userData.createdAt).toLocaleDateString()}
                     </p>
                   </div>
 
-                  {userProfile.role === "vendor" && (
+                  {userData.role === "vendor" && (
                     <div className="pt-4">
                       <Button
                         variant="outline"

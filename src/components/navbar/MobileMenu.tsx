@@ -46,7 +46,7 @@ const MobileMenu = ({
         </Link>
         {userRole === "admin" && (
           <Link 
-            to="/admin" 
+            to="/admin/dashboard" 
             className="text-cake-primary hover:text-cake-dark transition-colors font-medium py-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >

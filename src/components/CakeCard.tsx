@@ -53,7 +53,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
           <Star className="w-5 h-5 text-yellow-400 fill-current" />
           <span className="ml-1 font-medium">{cake.rating}</span>
           <span className="ml-2 text-sm text-gray-500">
-            ({cake.reviews} reviews)
+          ({cake?.reviews?.length || 0} reviews)
           </span>
         </div>
         
