@@ -56,7 +56,7 @@ const CustomerLoginForm = () => {
           )}
         />
         
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="text-sm">
             <Link
               to="#"
@@ -65,7 +65,7 @@ const CustomerLoginForm = () => {
               Forgot your password?
             </Link>
           </div>
-        </div>
+        </div> */}
         
         <Button
           type="submit"
