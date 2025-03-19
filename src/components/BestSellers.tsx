@@ -17,8 +17,8 @@ const BestSellers = () => {
         const q = query(
           collection(db, "products"),
           //where("inStock", "==", true),
-          //orderBy("ordersCount", "desc"),
-          //limit(3)
+          orderBy("ordersCount", "desc"),
+          limit(3)
         );
         
         const querySnapshot = await getDocs(q);

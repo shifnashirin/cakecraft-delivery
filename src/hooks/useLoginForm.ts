@@ -36,21 +36,21 @@ export const useLoginForm = (isAdmin = false) => {
       await login(data.email, data.password);
       
       // Wait a bit for userProfile to be fetched
-      setTimeout(() => {
-        // Check if admin login and if user has admin role
-        if (isAdmin && userProfile?.role !== "admin") {
-          toast({
-            title: "Access denied",
-            description: "You don't have admin privileges.",
-            variant: "destructive",
-          });
-          navigate("/login");
-        } else if (isAdmin && userProfile?.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
-      }, 1000);
+      // setTimeout(() => {
+      //   // Check if admin login and if user has admin role
+      //   if (isAdmin && userProfile?.role !== "admin") {
+      //     toast({
+      //       title: "Access denied",
+      //       description: "You don't have admin privileges.",
+      //       variant: "destructive",
+      //     });
+      //     navigate("/login");
+      //   } else if (isAdmin && userProfile?.role === "admin") {
+      //     navigate("/admin");
+      //   } else {
+      //     navigate("/");
+      //   }
+      // }, 1000);
       
     } catch (error) {
       // Error handling is done in the login function in AuthContext

@@ -1,16 +1,17 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User } from "firebase/auth";
 import { 
-  onAuthStateChange, 
-  getCurrentUser,
-  loginWithEmailAndPassword,
-  registerWithEmailAndPassword,
-  signInWithGoogle,
-  logout
-} from "../services/authService";
-import { userApi } from "../services/apiService";
+  getAuth, 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut, 
+  User
+} from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+import { auth, db } from "../config/firebase"; // Import Firebase instance
+import { doc, getDoc } from "firebase/firestore";
 
 interface AuthContextType {
   currentUser: User | null;
@@ -19,50 +20,59 @@ interface AuthContextType {
   register: (email: string, password: string, fullName: string, phone: string) => Promise<User>;
   googleSignIn: () => Promise<User>;
   logoutUser: () => Promise<void>;
-  userProfile: any | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<any | null>(null);
+  const [userProfile,setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange((user) => {
-      setCurrentUser(user);
-      setLoading(false);
-      
-      // If user is logged in, fetch their MongoDB profile
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        fetchUserProfile();
+        setCurrentUser(user);
+        await fetchUserProfile(user.uid); // Fetch user data from Firestore
       } else {
+        setCurrentUser(null);
         setUserProfile(null);
       }
+      setLoading(false);
     });
 
     return unsubscribe;
   }, []);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = async (uid: string) => {
     try {
-      const profile = await userApi.getProfile();
-      setUserProfile(profile);
+      const userDocRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userDocRef);
+
+      if (userSnap.exists()) {
+        setUserProfile(userSnap.data()); // Store Firestore user data in state
+      } else {
+        console.log("No user profile found!");
+      }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      // Don't show toast here as the user might not be registered in MongoDB yet
     }
   };
 
+  // 🔹 LOGIN with Firebase and Send Token to Backend
   const login = async (email: string, password: string) => {
     try {
-      const user = await loginWithEmailAndPassword(email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+      // const role = idToken.claims.role;
+      console.log(user)
       toast({
         title: "Login successful",
-        description: "Welcome back to CakeDelight!",
+        description: "Welcome back!",
       });
+
       return user;
     } catch (error: any) {
       toast({
@@ -74,79 +84,84 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (email: string, password: string, fullName: string, phone: string) => {
+  // 🔹 REGISTER with Firebase and Backend
+  const register = async ( name:String, email:String, phoneNumber:String, password:String) => {
     try {
-      // First create Firebase auth user
-      const user = await registerWithEmailAndPassword(email, password);
-      
-      // Then register in MongoDB with additional details
-      await userApi.registerUser({ fullName, phone });
-      
+      // const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // const user = userCredential.user;
+      // const idToken = await user.getIdToken();
+
+      // Send user details to backend
+      const response = await fetch("http://localhost:5000/api/user/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ name, email, phoneNumber, password }),
+      });
+
+      if (!response.ok) throw new Error("Failed to register user");
+      console.log(response)
       toast({
         title: "Registration successful",
-        description: "Welcome to CakeDelight!",
+        description: "Welcome aboard!",
       });
-      
-      return user;
+
+      return response;
     } catch (error: any) {
-      let errorMessage = "An error occurred during registration";
-      
-      // Enhanced error handling for Firebase auth errors
-      if (error.code === "auth/email-already-in-use") {
-        errorMessage = "This email is already registered. Please use a different email or try logging in.";
-      } else if (error.code === "auth/weak-password") {
-        errorMessage = "Password is too weak. Please choose a stronger password.";
-      } else if (error.code === "auth/invalid-email") {
-        errorMessage = "Please enter a valid email address.";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
       toast({
         title: "Registration failed",
-        description: errorMessage,
+        description: error.message || "Something went wrong",
         variant: "destructive",
       });
       throw error;
     }
   };
 
+  // 🔹 GOOGLE SIGN-IN with Firebase and Backend
   const googleSignIn = async () => {
     try {
-      const user = await signInWithGoogle();
-      
-      // Register or update user in MongoDB
-      try {
-        await userApi.registerUser({ 
-          fullName: user.displayName || "", 
-          phone: "" 
-        });
-      } catch (error) {
-        // Ignore errors as the user might already be registered
-        console.log("User might already be registered");
-      }
-      
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      await fetch("http://localhost:5000/api/user/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          fullName: user.displayName || "",
+          phone: "",
+          email: user.email,
+          uid: user.uid,
+        }),
+      });
+
       toast({
         title: "Login successful",
         description: "Welcome to CakeDelight!",
       });
-      
+
       return user;
     } catch (error: any) {
       toast({
-        title: "Google sign-in failed",
-        description: error.message || "An error occurred during sign-in",
+        title: "Google Sign-In failed",
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
       throw error;
     }
   };
 
+  // 🔹 LOGOUT
   const logoutUser = async () => {
     try {
-      await logout();
+      await signOut(auth);
       setCurrentUser(null);
-      setUserProfile(null);
       toast({
         title: "Logged out",
         description: "You have been successfully logged out",
@@ -154,7 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       toast({
         title: "Logout failed",
-        description: error.message || "An error occurred during logout",
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
       throw error;
@@ -163,12 +178,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const value = {
     currentUser,
+    userProfile,
     loading,
     login,
     register,
     googleSignIn,
     logoutUser,
-    userProfile
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

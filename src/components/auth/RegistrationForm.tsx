@@ -16,7 +16,7 @@ const RegistrationForm = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="fullName"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-cake-text">Full Name</FormLabel>
@@ -58,7 +58,7 @@ const RegistrationForm = () => {
         
         <FormField
           control={form.control}
-          name="phone"
+          name="phoneNumber"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-cake-text">Phone Number</FormLabel>

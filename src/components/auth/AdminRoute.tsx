@@ -13,7 +13,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
-  if (!currentUser || !userProfile || userProfile.role !== "admin") {
+  if (!currentUser || !userProfile || userProfile.role !== "vendor") {
     return <Navigate to="/login" />;
   }
 

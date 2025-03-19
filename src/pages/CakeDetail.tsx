@@ -1,37 +1,75 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Star, Minus, Plus, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cakes } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CakeCard from "@/components/CakeCard";
+import { doc, getDoc, collection, query, where, getDocs, limit } from "firebase/firestore";
+import { db } from "@/config/firebase";
 
 const CakeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const [cake, setCake] = useState(null);
+  const [relatedCakes, setRelatedCakes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const cake = cakes.find(cake => cake.id === id);
-  
-  if (!cake) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-cake-text mb-4">Cake not found</h2>
-            <Link to="/" className="text-cake-primary hover:underline">
-              Return to home
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchCake = async () => {
+      try {
+        setLoading(true);
+        
+        // Create a reference to the cake document
+        const cakeRef = doc(db, "products", id);
+        
+        // Get the document
+        const cakeDoc = await getDoc(cakeRef);
+        
+        if (cakeDoc.exists()) {
+          const cakeData = {
+            id: cakeDoc.id,
+            category: cakeDoc?.category,
+            ...cakeDoc.data()
+          };
+          setCake(cakeData);
+          console.log(cakeData.category)
+          // After getting the cake, fetch related cakes
+          // if (cakeData?.category) {
+          //   const relatedCakesRef = collection(db, "products");
+          //   const q = query(
+          //     relatedCakesRef, 
+          //     where("category", "==", cakeData?.category),
+          //     where("id", "!=", id),
+          //     limit(3)
+          //   );
+            
+          //   const relatedSnapshot = await getDocs(q);
+          //   const relatedCakesData = relatedSnapshot.docs.map(doc => ({
+          //     id: doc.id,
+          //     ...doc.data()
+          //   }));
+            
+          //   setRelatedCakes(relatedCakesData);
+          // }
+        } else {
+          setError("Cake not found");
+        }
+      } catch (err) {
+        console.error("Error fetching cake:", err);
+        setError("Failed to load cake details. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchCake();
+    }
+  }, [id]);
 
   const incrementQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -42,15 +80,45 @@ const CakeDetail = () => {
   };
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(cake);
+    if (cake) {
+      for (let i = 0; i < quantity; i++) {
+        addToCart(cake);
+      }
     }
   };
 
-  // Find related cakes in the same category
-  const relatedCakes = cakes
-    .filter(c => c.category === cake.category && c.id !== cake.id)
-    .slice(0, 3);
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cake-primary"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Error or cake not found state
+  if (error || !id) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-cake-text mb-4">
+              {error || "Cake not found"}
+            </h2>
+            <Link to="/" className="text-cake-primary hover:underline">
+              Return to home
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

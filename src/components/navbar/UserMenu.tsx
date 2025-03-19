@@ -26,7 +26,7 @@ const UserMenu = ({ isLoggedIn, userRole, handleLogout }: UserMenuProps) => {
           size="icon" 
           className="text-cake-text hover:text-cake-primary transition-colors"
         >
-          <User className="h-6 w-6" />
+          <User className="h-10 w-10" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -58,12 +58,12 @@ const UserMenu = ({ isLoggedIn, userRole, handleLogout }: UserMenuProps) => {
               <Link to="/register">Register</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            {/* <DropdownMenuItem asChild>
               <Link to="/login?type=admin" className="flex items-center">
                 <User className="h-4 w-4 mr-2" />
                 Admin Login
               </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </>
         )}
       </DropdownMenuContent>

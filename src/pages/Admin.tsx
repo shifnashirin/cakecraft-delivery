@@ -11,6 +11,9 @@ import AdminStats from "@/components/admin/AdminStats";
 import InventoryTab from "@/components/admin/InventoryTab";
 import OrdersTab from "@/components/admin/OrdersTab";
 import AdminDashboard from "@/components/admin/AdminDashboard";
+import { useAuth } from "@/context/AuthContext";
+import {db} from '@/config/firebase'
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 
 interface Order {
   id: string;
@@ -22,25 +25,36 @@ interface Order {
 }
 
 const Admin = () => {
+    const { currentUser, userProfile, logoutUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [cakes, setCakes] = useState(initialCakes);
   const [searchTerm, setSearchTerm] = useState("");
-  const [orders, setOrders] = useState<Order[]>([
-    { id: "ORD-1001", customerName: "John Doe", date: "2023-05-15", status: "completed", total: 89.97, items: 3 },
-    { id: "ORD-1002", customerName: "Sarah Smith", date: "2023-05-16", status: "processing", total: 54.99, items: 1 },
-    { id: "ORD-1003", customerName: "Michael Brown", date: "2023-05-16", status: "pending", total: 149.98, items: 2 },
-    { id: "ORD-1004", customerName: "Emma Wilson", date: "2023-05-17", status: "processing", total: 64.99, items: 1 },
-    { id: "ORD-1005", customerName: "David Lee", date: "2023-05-18", status: "delivered", total: 129.97, items: 3 },
-    { id: "ORD-1006", customerName: "Lisa Johnson", date: "2023-05-18", status: "canceled", total: 79.99, items: 2 },
-    { id: "ORD-1007", customerName: "Robert Chen", date: "2023-05-19", status: "pending", total: 99.98, items: 3 },
-    { id: "ORD-1008", customerName: "Jennifer Kim", date: "2023-05-20", status: "completed", total: 159.97, items: 4 },
-  ]);
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  // Fetch orders from Firestore
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "orders"));
+        const ordersList: Order[] = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Order[];
+        setOrders(ordersList);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
   
   useEffect(() => {
     // Check if user is admin (in a real app, use proper authentication)
     const userRole = localStorage.getItem("userRole");
-    if (userRole !== "admin") {
+    if (userProfile.role !== "vendor") {
       toast({
         title: "Access denied",
         description: "You don't have permission to access this page.",
@@ -48,7 +62,7 @@ const Admin = () => {
       });
       navigate("/login");
     }
-  }, [navigate, toast]);
+  }, [navigate, toast,userProfile]);
   
   const handleUpdateAvailability = (id: string, isAvailable: boolean) => {
     setCakes(cakes.map(cake => 
