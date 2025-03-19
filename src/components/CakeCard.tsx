@@ -12,7 +12,7 @@ interface CakeCardProps {
 
 const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
   const { addToCart } = useCart();
-
+  console.log(cake);
   return (
     <div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
       <Link to={`/cake/${cake.id}`} className="block relative overflow-hidden aspect-square">

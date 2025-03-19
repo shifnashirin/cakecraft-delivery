@@ -34,35 +34,36 @@ const VendorLoginForm = () => {
   const onSubmit = async (values) => {
     setIsLoading(true);
     setError("");
-    
+  
     try {
       // Sign in with Firebase Authentication
       const userCredential = await signInWithEmailAndPassword(
-        auth, 
-        values.email, 
+        auth,
+        values.email,
         values.password
       );
-      
+  
       const user = userCredential.user;
-      
-      // Check if the user is a vendor in Firestore
-      const userDoc = await getDoc(doc(db, "vendors", user.uid));
-      
-      if (!userDoc.exists()) {
-        // User exists in Auth but not as a vendor in Firestore
+  
+      // Fetch user document from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+  
+      if (!userDocSnap.exists() || userDocSnap.data().role !== "vendor") {
+        // If user does not exist in Firestore or is not a vendor, log them out
         await auth.signOut();
         setError("Account not authorized as vendor. Please contact support.");
         setIsLoading(false);
         return;
       }
-      
+  
       // Successfully logged in as vendor
       console.log("Vendor logged in:", user.uid);
       navigate("/vendor/dashboard"); // Redirect to vendor dashboard
-      
+  
     } catch (error) {
       console.error("Login error:", error);
-      
+  
       // Handle specific Firebase auth errors
       switch (error.code) {
         case "auth/user-not-found":
@@ -70,15 +71,16 @@ const VendorLoginForm = () => {
           setError("Invalid email or password");
           break;
         case "auth/too-many-requests":
-          setError("Too many failed login attempts. Try again later");
+          setError("Too many failed login attempts. Try again later.");
           break;
         default:
-          setError("Failed to sign in. Please try again");
+          setError("Failed to sign in. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <Form {...form}>

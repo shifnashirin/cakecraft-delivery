@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -14,11 +13,11 @@ const Profile = () => {
   const { currentUser, userProfile, logoutUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  
+  console.log(userProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: userProfile?.fullName || "",
-    phone: userProfile?.phone || "",
+    fullName: userProfile?.name || "",
+    phone: userProfile?.phoneNumber || "",
     street: userProfile?.address?.street || "",
     city: userProfile?.address?.city || "",
     state: userProfile?.address?.state || "",
@@ -28,12 +27,12 @@ const Profile = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const updatedProfile = await userApi.updateProfile({
         fullName: formData.fullName,
@@ -44,14 +43,14 @@ const Profile = () => {
           state: formData.state,
           zipCode: formData.zipCode,
           country: formData.country,
-        }
+        },
       });
-      
+
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully",
       });
-      
+
       setIsEditing(false);
     } catch (error) {
       toast({
@@ -76,9 +75,7 @@ const Profile = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            Loading profile...
-          </div>
+          <div className="text-center py-12">Loading profile...</div>
         </main>
         <Footer />
       </div>
@@ -88,10 +85,10 @@ const Profile = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-cake-text mb-8">My Profile</h1>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
             <Card>
@@ -102,40 +99,54 @@ const Profile = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-center mb-4">
                     <div className="h-24 w-24 rounded-full bg-cake-primary/20 flex items-center justify-center text-cake-primary text-2xl font-bold">
-                      {userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : "U"}
+                      {userProfile.fullName
+                        ? userProfile.fullName.charAt(0).toUpperCase()
+                        : "U"}
                     </div>
                   </div>
-                  
+
                   <div>
                     <p className="text-sm text-cake-text/60">Email</p>
                     <p className="font-medium">{currentUser.email}</p>
                   </div>
-                  
+
                   <div>
                     <p className="text-sm text-cake-text/60">Account Type</p>
                     <p className="font-medium capitalize">{userProfile.role}</p>
                   </div>
-                  
+
                   <div>
                     <p className="text-sm text-cake-text/60">Member Since</p>
                     <p className="font-medium">
                       {new Date(userProfile.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  
+
+                  {userProfile.role === "vendor" && (
+                    <div className="pt-4">
+                      <Button
+                        variant="outline"
+                        className="w-full border-cake-border"
+                        onClick={() => navigate("/vendor/dashboard")}
+                      >
+                        My Vendor Panel
+                      </Button>
+                    </div>
+                  )}
+
                   <div className="pt-4">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full border-cake-border"
                       onClick={() => navigate("/my-orders")}
                     >
                       My Orders
                     </Button>
                   </div>
-                  
+
                   <div>
-                    <Button 
-                      variant="destructive" 
+                    <Button
+                      variant="destructive"
                       className="w-full"
                       onClick={handleLogout}
                     >
@@ -146,16 +157,13 @@ const Profile = () => {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="md:col-span-2">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Personal Information</CardTitle>
                 {!isEditing ? (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsEditing(true)}
-                  >
+                  <Button variant="outline" onClick={() => setIsEditing(true)}>
                     Edit
                   </Button>
                 ) : null}
@@ -165,10 +173,13 @@ const Profile = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="fullName" className="block text-sm font-medium text-cake-text mb-1">
+                        <label
+                          htmlFor="fullName"
+                          className="block text-sm font-medium text-cake-text mb-1"
+                        >
                           Full Name
                         </label>
-                        <Input 
+                        <Input
                           id="fullName"
                           name="fullName"
                           value={formData.fullName}
@@ -178,10 +189,13 @@ const Profile = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-cake-text mb-1">
+                        <label
+                          htmlFor="phone"
+                          className="block text-sm font-medium text-cake-text mb-1"
+                        >
                           Phone Number
                         </label>
-                        <Input 
+                        <Input
                           id="phone"
                           name="phone"
                           value={formData.phone}
@@ -191,17 +205,20 @@ const Profile = () => {
                         />
                       </div>
                     </div>
-                    
+
                     <div>
                       <h3 className="text-lg font-medium text-cake-text mb-2">
                         Address
                       </h3>
                       <div className="space-y-4">
                         <div>
-                          <label htmlFor="street" className="block text-sm font-medium text-cake-text mb-1">
+                          <label
+                            htmlFor="street"
+                            className="block text-sm font-medium text-cake-text mb-1"
+                          >
                             Street Address
                           </label>
-                          <Input 
+                          <Input
                             id="street"
                             name="street"
                             value={formData.street}
@@ -210,13 +227,16 @@ const Profile = () => {
                             className="border-cake-border focus-visible:ring-cake-primary"
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label htmlFor="city" className="block text-sm font-medium text-cake-text mb-1">
+                            <label
+                              htmlFor="city"
+                              className="block text-sm font-medium text-cake-text mb-1"
+                            >
                               City
                             </label>
-                            <Input 
+                            <Input
                               id="city"
                               name="city"
                               value={formData.city}
@@ -226,10 +246,13 @@ const Profile = () => {
                             />
                           </div>
                           <div>
-                            <label htmlFor="state" className="block text-sm font-medium text-cake-text mb-1">
+                            <label
+                              htmlFor="state"
+                              className="block text-sm font-medium text-cake-text mb-1"
+                            >
                               State
                             </label>
-                            <Input 
+                            <Input
                               id="state"
                               name="state"
                               value={formData.state}
@@ -239,10 +262,13 @@ const Profile = () => {
                             />
                           </div>
                           <div>
-                            <label htmlFor="zipCode" className="block text-sm font-medium text-cake-text mb-1">
+                            <label
+                              htmlFor="zipCode"
+                              className="block text-sm font-medium text-cake-text mb-1"
+                            >
                               ZIP Code
                             </label>
-                            <Input 
+                            <Input
                               id="zipCode"
                               name="zipCode"
                               value={formData.zipCode}
@@ -252,12 +278,15 @@ const Profile = () => {
                             />
                           </div>
                         </div>
-                        
+
                         <div>
-                          <label htmlFor="country" className="block text-sm font-medium text-cake-text mb-1">
+                          <label
+                            htmlFor="country"
+                            className="block text-sm font-medium text-cake-text mb-1"
+                          >
                             Country
                           </label>
-                          <Input 
+                          <Input
                             id="country"
                             name="country"
                             value={formData.country}
@@ -268,18 +297,18 @@ const Profile = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     {isEditing && (
                       <div className="flex gap-4 pt-4">
-                        <Button 
+                        <Button
                           type="submit"
                           className="bg-cake-primary hover:bg-cake-dark text-white"
                         >
                           Save Changes
                         </Button>
-                        <Button 
+                        <Button
                           type="button"
-                          variant="outline" 
+                          variant="outline"
                           className="border-cake-border"
                           onClick={() => setIsEditing(false)}
                         >
@@ -294,7 +323,7 @@ const Profile = () => {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

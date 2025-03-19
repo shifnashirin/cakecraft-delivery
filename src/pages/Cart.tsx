@@ -1,14 +1,104 @@
-
-import React from "react";
-import { Link } from "react-router-dom";
-import { Minus, Plus, X, ShoppingBag } from "lucide-react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Minus, Plus, X, ShoppingBag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { auth, db } from '@/config/firebase';
+import { addDoc, collection, updateDoc, doc, getDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, clearCart, subtotal } = useCart();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handleCheckout = async () => {
+    try {
+      setIsProcessing(true);
+      setError(null);
+      
+      // Check if user is logged in
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        // Redirect to login page if not logged in
+        navigate('/login', { state: { redirect: '/cart' } });
+        return;
+      }
+      
+      // Calculate order details
+      const shipping = 5.00;
+      const tax = subtotal * 0.1;
+      const total = subtotal + shipping + tax;
+      
+      // Create order object
+      const orderItems = items.map(item => ({
+        cakeId: item.cake.id,
+        name: item.cake.name,
+        price: item.cake.price,
+        quantity: item.quantity,
+        imageURL: item.cake.imageURL,
+        subtotal: item.cake.price * item.quantity
+      }));
+      
+      const order = {
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        items: orderItems,
+        subtotal: subtotal,
+        shipping: shipping,
+        tax: tax,
+        total: total,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      };
+      
+      // 1. Add order to orders collection
+      const orderRef = await addDoc(collection(db, 'orders'), order);
+      const orderId = orderRef.id;
+      
+      // 2. Update user document with order reference
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      
+      // Check if user document exists, if not create it
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        // Update existing user document
+        await updateDoc(userDocRef, {
+          orders: arrayUnion({
+            orderId: orderId,
+            date: new Date().toISOString(),
+            total: total,
+            status: 'pending'
+          })
+        });
+      } else {
+        // Create new user document
+        await updateDoc(userDocRef, {
+          email: currentUser.email,
+          orders: [{
+            orderId: orderId,
+            date: new Date().toISOString(),
+            total: total,
+            status: 'pending'
+          }]
+        });
+      }
+      
+      // Clear the cart
+      clearCart();
+      
+      // Redirect to order confirmation page
+      navigate(`/checkout/success/${orderId}`);
+      
+    } catch (err) {
+      console.error("Error creating order:", err);
+      setError("Failed to process your order. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -164,11 +254,25 @@ const Cart = () => {
                   </div>
                 </div>
                 
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                    {error}
+                  </div>
+                )}
+                
                 <Button 
                   className="w-full bg-cake-primary hover:bg-cake-dark text-white"
-                  asChild
+                  onClick={handleCheckout}
+                  disabled={isProcessing}
                 >
-                  <Link to="/checkout">Proceed to Checkout</Link>
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Proceed to Checkout"
+                  )}
                 </Button>
               </div>
             </div>

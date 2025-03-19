@@ -23,6 +23,7 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import MyOrders from "./pages/MyOrders";
+import OrderDetails from "./pages/OrderDetails";
 import CreateProduct from "./pages/Createproduct";
 
 const queryClient = new QueryClient();
@@ -38,10 +39,11 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/cake/:id" element={<CakeDetail />} />
+              <Route path="/track-order/:id" element={<OrderDetails />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/Createproduct" element={<CreateProduct />} />
               <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
-              <Route path="/order-success" element={<PrivateRoute><OrderSuccess /></PrivateRoute>} />
+              <Route path="/checkout/success/:orderId" element={<PrivateRoute><OrderSuccess /></PrivateRoute>} />
               <Route path="/category/:id" element={<CategoryPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/special-occasions" element={<SpecialOccasionsPage />} />
@@ -50,7 +52,8 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/my-orders" element={<PrivateRoute><MyOrders /></PrivateRoute>} />
-              <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+              <Route path="/vendor/dashboard" element={<AdminRoute><Admin /></AdminRoute>} />
+              
               <Route path="*" element={<NotFound />} />
 
             </Routes>
