@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
+import { auth } from "@/config/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import * as z from "zod";
 
 export const registerFormSchema = z.object({
@@ -59,13 +61,30 @@ export const useRegisterForm = (role) => {
         throw new Error('Registration failed');
       }
 
+
+        const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+        const user = userCredential.user;
+  
+        if (user) {
+          const idTokenResult = await user.getIdTokenResult();
+          const userRole = idTokenResult.claims.role;
+  
+         if (userRole === "admin") {
+            navigate("/admin/dashboard");
+          }else if (userRole === "vendor"){
+            navigate("/vendor/dashboard");
+          } else {
+            navigate("/");
+          }
+        }
+      
+
       const result = await response.json();
 
       toast({
         title: "Registration successful",
-        description: "You can now log in with your credentials",
+        description: "you logged in successfully",
       });
-      navigate("/login");
     } catch (error: any) {
       console.error("Registration error:", error);
       
