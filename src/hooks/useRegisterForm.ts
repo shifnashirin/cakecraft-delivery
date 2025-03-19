@@ -1,60 +1,74 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/config/firebase"; // Import Firebase auth
 import * as z from "zod";
 
-export const registerFormSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
+// Define the login form schema using Zod
+export const loginFormSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(10, "Please enter a valid phone number"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
 });
 
-export type RegisterFormData = z.infer<typeof registerFormSchema>;
+// Infer the type of the login form data
+export type LoginFormData = z.infer<typeof loginFormSchema>;
 
-export const useRegisterForm = () => {
+// Custom hook for handling the login form
+export const useLoginForm = (isAdmin = false) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { role } = useAuth(); // Use the role from AuthContext
 
-  const form = useForm<RegisterFormData>({
-    resolver: zodResolver(registerFormSchema),
+  // Initialize the form using react-hook-form
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      fullName: "",
       email: "",
-      phone: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
+  // Handle form submission
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    
+
     try {
-      await register(data.email, data.password, data.fullName, data.phone);
+      // Sign in with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      if (user) {
+        // Get the user's ID token to check their role
+        const idTokenResult = await user.getIdTokenResult();
+        const userRole = idTokenResult.claims.role; // Assuming the role is stored in the token claims
+
+        // Redirect based on the user's role
+        if (isAdmin && userRole !== "admin") {
+          toast({
+            title: "Access denied",
+            description: "You don't have admin privileges.",
+            variant: "destructive",
+          });
+          await auth.signOut(); // Sign out the user if they don't have admin privileges
+          navigate("/login");
+        } else if (isAdmin && userRole === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        title: "Registration successful",
-        description: "You can now log in with your credentials",
+        title: "Login failed",
+        description: "Invalid email or password. Please try again.",
+        variant: "destructive",
       });
-      navigate("/login");
-    } catch (error: any) {
-      // Error handling is now done in the AuthContext
-      console.error("Registration error:", error);
-      
-      // Reset the form fields except for fullName and phone
-      form.setValue("email", "");
-      form.setValue("password", "");
-      form.setValue("confirmPassword", "");
     } finally {
       setIsLoading(false);
     }

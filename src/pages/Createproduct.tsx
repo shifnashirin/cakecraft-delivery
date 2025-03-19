@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload } from "lucide-react";
 import { db } from "@/config/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { useAuth } from "@/context/AuthContext";
+import { addDoc, collection, updateDoc, doc, arrayUnion } from "firebase/firestore";
 
 export default function CreateProduct() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
+  const { user } = useAuth();
   const [productData, setProductData] = useState({
     name: "",
     description: "",
@@ -60,22 +61,25 @@ export default function CreateProduct() {
   };
   
   // Handle form submission
+  
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const imageUrl = await handleImageUpload(productData.image);
-
+  
       if (!imageUrl) {
         alert("Failed to upload product image. Please try again.");
         setLoading(false);
         return;
       }
-
+  
       // Add document to Firestore
       const docRef = await addDoc(collection(db, "products"), {
         name: productData.name,
+        ownerID: user.uid,
         description: productData.description,
         price: parseFloat(productData.price),
         category: productData.category,
@@ -87,16 +91,22 @@ export default function CreateProduct() {
         inStock: parseInt(productData.quantity) > 0,
         createdAt: new Date()
       });
-
+  
+      // Update the user's document to include the new product ID
+      const userRef = doc(db, "users", user.uid); // Reference to the user's document
+      await updateDoc(userRef, {
+        myProducts: arrayUnion(docRef.id) // Add the product ID to the user's myProducts array
+      });
+  
       console.log("Product Created with ID:", docRef.id);
-
+  
       alert("Product Created Successfully!");
       navigate("/"); // Adjust this route as needed
     } catch (error) {
       console.error("Error adding product:", error);
       alert("Failed to create product.");
     }
-
+  
     setLoading(false);
   };
 
